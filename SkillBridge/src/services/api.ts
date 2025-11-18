@@ -17,7 +17,7 @@ import {
 
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 30000, // Aumentado para requisições de IA
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -39,11 +39,9 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      // Token inválido ou expirado
       await AsyncStorage.removeItem('token');
       await AsyncStorage.removeItem('user');
     } else if (error.response?.status === 403) {
-      // Acesso negado - token pode estar inválido ou usuário sem permissão
       console.error('Acesso negado (403). Verificando token...');
       const token = await AsyncStorage.getItem('token');
       if (!token) {
@@ -81,19 +79,16 @@ export const login = async (data: LoginData) => {
 
 export const register = async (data: RegisterData) => {
   try {
-    // Garante que a senha tenha pelo menos 6 caracteres (validação do backend)
     if (data.senha && data.senha.length < 6) {
       throw new Error('A senha deve ter pelo menos 6 caracteres');
     }
 
-    // Prepara o payload com todos os campos, incluindo objetivoCarreira e competencias
     const payload: any = {
       nome: data.nome,
       email: data.email,
       senha: data.senha,
     };
 
-    // Adiciona campos opcionais apenas se estiverem presentes
     if (data.telefone) payload.telefone = data.telefone;
     if (data.cidade) payload.cidade = data.cidade;
     if (data.uf) payload.uf = data.uf;
@@ -116,7 +111,6 @@ export const register = async (data: RegisterData) => {
     if (error.code === 'ECONNREFUSED' || error.message?.includes('Network Error')) {
       throw new Error('Não foi possível conectar ao servidor. Verifique se a API está rodando e a URL está correta.');
     }
-    // Se for erro de validação do backend, passa a mensagem
     if (error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }
@@ -175,13 +169,11 @@ export const getCursoById = async (id: string): Promise<Curso> => {
   return response.data;
 };
 
-// Recomendações Básicas (Automáticas)
 export const getRecomendacoesBasicas = async (usuarioId: string): Promise<RecomendacaoBasica> => {
   const response = await api.get(`/recomendacoes/${usuarioId}`);
   return response.data;
 };
 
-// Recomendações com IA (Sob Demanda)
 export const gerarRecomendacoesIA = async (usuarioId: string): Promise<RecomendacaoIA> => {
   const response = await api.post(`/api/v1/ia/recomendacoes/${usuarioId}`);
   return response.data;
@@ -199,10 +191,8 @@ export const getRecomendacoesIA = async (usuarioId: string): Promise<Recomendaca
   }
 };
 
-// Plano de Estudos
 export const gerarPlanoEstudos = async (data: PlanoEstudosRequest): Promise<PlanoEstudosResponse> => {
   try {
-    // Garantir que os dados estão no formato correto
     const payload: any = {
       objetivoCarreira: data.objetivoCarreira?.trim(),
       nivelAtual: data.nivelAtual,
@@ -210,7 +200,6 @@ export const gerarPlanoEstudos = async (data: PlanoEstudosRequest): Promise<Plan
       tempoDisponivelSemana: data.tempoDisponivelSemana,
     };
 
-    // Adicionar campos opcionais apenas se estiverem presentes
     if (data.prazoMeses && data.prazoMeses > 0) {
       payload.prazoMeses = data.prazoMeses;
     }
@@ -222,12 +211,10 @@ export const gerarPlanoEstudos = async (data: PlanoEstudosRequest): Promise<Plan
     return response.data;
   } catch (error: any) {
     console.error('Erro ao gerar plano de estudos:', error);
-    // Re-throw para que o componente possa tratar
     throw error;
   }
 };
 
-// Aplicações (Candidaturas)
 export const getAplicacoes = async (): Promise<Aplicacao[]> => {
   const response = await api.get('/aplicacoes?page=0&size=50');
   return response.data.content || response.data || [];

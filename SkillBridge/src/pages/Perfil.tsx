@@ -30,7 +30,6 @@ export default function Perfil({ onLogout, navigation }: any) {
     const userData = await getUser();
     if (userData) {
       setUser(userData);
-      // Buscar dados completos do servidor
       try {
         const fullUser = await getUserById(userData.id);
         setUser(fullUser);
@@ -97,9 +96,7 @@ export default function Perfil({ onLogout, navigation }: any) {
     setLoading(true);
     try {
       await deleteUser(user.id);
-      // Limpar dados locais
       await logout();
-      // Redirecionar para login
       if (onLogout) {
         onLogout();
       }
@@ -213,7 +210,6 @@ export default function Perfil({ onLogout, navigation }: any) {
         <Text style={styles.logoutText}>Sair</Text>
       </TouchableOpacity>
 
-      {/* Modal de Edição */}
       <Modal
         visible={editing}
         animationType="slide"
@@ -327,7 +323,6 @@ export default function Perfil({ onLogout, navigation }: any) {
               </TouchableOpacity>
             </View>
 
-            {/* Botão de Excluir Conta */}
             <View style={styles.deleteSection}>
               <TouchableOpacity
                 style={styles.deleteButton}
@@ -342,7 +337,6 @@ export default function Perfil({ onLogout, navigation }: any) {
         </View>
       </Modal>
 
-      {/* Modal de Confirmação de Exclusão */}
       <Modal
         visible={showDeleteConfirm}
         animationType="fade"

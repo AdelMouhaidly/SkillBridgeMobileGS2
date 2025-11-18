@@ -31,10 +31,8 @@ export default function Login({ navigation, onLogin }: any) {
       let errorMsg = 'Erro ao fazer login';
       
       if (error.message) {
-        // Erro customizado com mensagem mais clara
         errorMsg = error.message;
       } else if (error.response) {
-        // Erro do servidor
         if (error.response.status === 401) {
           errorMsg = 'Email ou senha incorretos';
         } else if (error.response.status === 400) {
@@ -45,7 +43,6 @@ export default function Login({ navigation, onLogin }: any) {
           errorMsg = `Erro do servidor (${error.response.status})`;
         }
       } else if (error.request) {
-        // Erro de conexão
         errorMsg = 'Não foi possível conectar ao servidor.\n\nVerifique:\n• Se a API está rodando na porta 8080\n• Se a URL está correta no arquivo config/api.ts\n• Se está usando o IP correto para dispositivo físico';
       } else {
         errorMsg = error.message || 'Erro desconhecido';

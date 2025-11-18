@@ -77,10 +77,8 @@ export default function Register({ navigation, onRegister }: any) {
       let errorMsg = "Erro ao cadastrar";
 
       if (error.message) {
-        // Erro customizado com mensagem mais clara
         errorMsg = error.message;
       } else if (error.response) {
-        // Erro do servidor
         if (error.response.status === 400) {
           errorMsg =
             error.response.data?.message ||
@@ -93,7 +91,6 @@ export default function Register({ navigation, onRegister }: any) {
           errorMsg = `Erro do servidor (${error.response.status})`;
         }
       } else if (error.request) {
-        // Erro de conexão
         errorMsg =
           "Não foi possível conectar ao servidor.\n\nVerifique:\n• Se a API está rodando na porta 8080\n• Se a URL está correta no arquivo config/api.ts\n• Se está usando o IP correto para dispositivo físico";
       } else {

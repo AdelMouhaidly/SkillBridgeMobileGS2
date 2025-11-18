@@ -35,7 +35,6 @@ export default function Dashboard({ navigation }: any) {
         cursos: cursos.length || 0,
       });
 
-      // Carregar recomendações básicas automaticamente
       if (userData) {
         loadRecomendacoes(userData.id);
       }
@@ -82,7 +81,6 @@ export default function Dashboard({ navigation }: any) {
         <Text style={styles.name}>{user?.nome || 'Usuário'}</Text>
       </View>
 
-      {/* Imagem Hero */}
       <View style={styles.imageContainer}>
         <Image
           source={require("../images/imagem.jpeg")}
@@ -91,7 +89,6 @@ export default function Dashboard({ navigation }: any) {
         />
       </View>
 
-      {/* Introdução do App */}
       <View style={styles.introContainer}>
         <Text style={styles.introTitle}>Bem-vindo ao SkillBridge</Text>
         <Text style={styles.introText}>
@@ -114,7 +111,6 @@ export default function Dashboard({ navigation }: any) {
         </View>
       </View>
 
-      {/* Recomendações Básicas (Automáticas) */}
       <View style={styles.recomendacoesSection}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Recomendações para Você</Text>

@@ -23,7 +23,6 @@ export default function Sobre({ navigation }: any) {
       </View>
 
       <View style={styles.content}>
-        {/* Logo/Ícone do App */}
         <View style={styles.logoContainer}>
           <View style={styles.logoCircle}>
             <Info size={48} color="#2196F3" />
@@ -34,7 +33,6 @@ export default function Sobre({ navigation }: any) {
           </Text>
         </View>
 
-        {/* Informações do App */}
         <View style={styles.infoSection}>
           <View style={styles.infoCard}>
             <View style={styles.infoHeader}>
@@ -64,7 +62,6 @@ export default function Sobre({ navigation }: any) {
           </View>
         </View>
 
-        {/* Descrição do App */}
         <View style={styles.descriptionCard}>
           <Text style={styles.descriptionTitle}>Sobre o SkillBridge</Text>
           <Text style={styles.descriptionText}>
@@ -79,7 +76,6 @@ export default function Sobre({ navigation }: any) {
           </Text>
         </View>
 
-        {/* Informações Técnicas */}
         <View style={styles.techCard}>
           <Text style={styles.techTitle}>Informações Técnicas</Text>
           <View style={styles.techItem}>

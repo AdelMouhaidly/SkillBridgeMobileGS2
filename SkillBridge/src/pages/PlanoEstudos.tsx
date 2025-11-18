@@ -131,11 +131,9 @@ export default function PlanoEstudos({ navigation }: any) {
       let errorDetails: string[] = [];
 
       if (error.response) {
-        // Erro do servidor
         const responseData = error.response.data;
-
+        
         if (error.response.status === 400) {
-          // Erro de validação
           if (responseData?.details && Array.isArray(responseData.details)) {
             errorDetails = responseData.details;
             errorMsg = responseData.message || "Erro de validação";
@@ -168,14 +166,12 @@ export default function PlanoEstudos({ navigation }: any) {
           errorMsg = `Erro do servidor (${error.response.status})`;
         }
       } else if (error.request) {
-        // Erro de conexão
         errorMsg =
           "Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.";
       } else if (error.message) {
         errorMsg = error.message;
       }
 
-      // Combinar mensagem principal com detalhes
       const fullMessage =
         errorDetails.length > 0
           ? `${errorMsg}\n\n${errorDetails.join("\n")}`
@@ -349,7 +345,6 @@ export default function PlanoEstudos({ navigation }: any) {
         </TouchableOpacity>
       </View>
 
-      {/* Modal com Plano Gerado */}
       <Modal
         visible={showModal}
         animationType="slide"

@@ -51,17 +51,14 @@ export default function Recomendacoes({ navigation }: any) {
     } catch (error: any) {
       console.error("Erro ao carregar recomendações básicas:", error);
 
-      // Tratamento específico para erro 403 (Forbidden)
       if (error.response?.status === 403) {
         console.error(
           "Acesso negado (403). Verifique se o token de autenticação é válido."
         );
-        // Criar estrutura vazia em caso de erro de autenticação
         setRecomendacoesBasicas({ cursos: [], vagas: [] });
         return;
       }
 
-      // Criar estrutura vazia em caso de erro
       setRecomendacoesBasicas({ cursos: [], vagas: [] });
     }
   };
@@ -154,7 +151,6 @@ export default function Recomendacoes({ navigation }: any) {
         )}
       </View>
 
-      {/* Recomendações Básicas (Automáticas) */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Recomendações por Competências</Text>
         <Text style={styles.sectionDescription}>
