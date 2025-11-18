@@ -27,10 +27,10 @@ gemini_api_key = os.getenv("GEMINI_API_KEY")
 if gemini_api_key:
     # Mostrar apenas os primeiros e últimos caracteres da chave para segurança
     key_preview = f"{gemini_api_key[:10]}...{gemini_api_key[-4:]}" if len(gemini_api_key) > 14 else "***"
-    print(f"🔑 GEMINI_API_KEY carregada: {key_preview}")
+    print(f"GEMINI_API_KEY carregada: {key_preview}")
     client = genai.Client(api_key=gemini_api_key)
 else:
-    print("⚠️ GEMINI_API_KEY não encontrada no arquivo .env!")
+    print("GEMINI_API_KEY não encontrada no arquivo .env!")
     client = None
 
 app = FastAPI(
@@ -81,41 +81,41 @@ async def gerar_plano_estudos(request: PlanoEstudosRequest):
     # Verificar se API key está configurada
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key or client is None:
-        print("⚠️ GEMINI_API_KEY não configurada ou cliente não inicializado. Usando plano fallback.")
+        print("GEMINI_API_KEY não configurada ou cliente não inicializado. Usando plano fallback.")
         plano_fallback_dict = criar_plano_fallback(request, "")
         return processar_resposta_gemini_fallback(plano_fallback_dict, request)
     
     try:
-        print("🤖 Tentando chamar Gemini API...")
+        print("Tentando chamar Gemini API...")
         # Construir prompt estruturado
         prompt = construir_prompt_plano_estudos(request)
         
         # Chamar Gemini
         resposta_gemini = chamar_gemini_plano_estudos(prompt)
-        print("✅ Gemini API respondeu com sucesso!")
-        print(f"📝 Resposta recebida (primeiros 200 chars): {resposta_gemini[:200]}...")
+        print("Gemini API respondeu com sucesso!")
+        print(f"Resposta recebida (primeiros 200 chars): {resposta_gemini[:200]}...")
         
         # Processar resposta
         plano_estruturado = processar_resposta_gemini(resposta_gemini, request)
-        print("✅ Plano processado com sucesso usando resposta do Gemini!")
+        print("Plano processado com sucesso usando resposta do Gemini!")
         
         return plano_estruturado
         
     except QuotaExceededException:
         # Retornar plano fallback quando quota excedida
-        print("⚠️ Quota do Gemini excedida. Usando plano fallback.")
+        print("Quota do Gemini excedida. Usando plano fallback.")
         plano_fallback_dict = criar_plano_fallback(request, "")
         return processar_resposta_gemini_fallback(plano_fallback_dict, request)
     except Exception as e:
         error_msg = str(e)
-        print(f"❌ Erro ao chamar Gemini: {error_msg}")
+        print(f"Erro ao chamar Gemini: {error_msg}")
         # Verificar se é erro de quota excedida (fallback adicional)
         if "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg or "quota" in error_msg.lower():
-            print("⚠️ Quota do Gemini excedida (detectado no catch geral). Usando plano fallback.")
+            print("Quota do Gemini excedida (detectado no catch geral). Usando plano fallback.")
             plano_fallback_dict = criar_plano_fallback(request, "")
             return processar_resposta_gemini_fallback(plano_fallback_dict, request)
         else:
-            print(f"⚠️ Erro desconhecido do Gemini. Usando plano fallback. Erro: {error_msg}")
+            print(f"Erro desconhecido do Gemini. Usando plano fallback. Erro: {error_msg}")
             # Em caso de erro desconhecido, também usar fallback para não quebrar a aplicação
             plano_fallback_dict = criar_plano_fallback(request, "")
             return processar_resposta_gemini_fallback(plano_fallback_dict, request)
@@ -201,12 +201,12 @@ def chamar_gemini_plano_estudos(prompt: str) -> str:
         )
         
         resposta_texto = response.text
-        print(f"✅ Gemini retornou resposta com {len(resposta_texto)} caracteres")
+        print(f"Gemini retornou resposta com {len(resposta_texto)} caracteres")
         return resposta_texto
         
     except Exception as e:
         error_str = str(e)
-        print(f"❌ Erro na chamada ao Gemini: {error_str}")
+        print(f"Erro na chamada ao Gemini: {error_str}")
         # Verificar se é erro de quota excedida
         if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str or "quota" in error_str.lower():
             # Lançar exceção especial que será capturada no handler
@@ -224,18 +224,18 @@ def processar_resposta_gemini(resposta: str, request: PlanoEstudosRequest) -> Pl
         # Tentar parsear JSON
         try:
             dados = json.loads(resposta_limpa)
-            print("✅ JSON do Gemini parseado com sucesso!")
+            print("JSON do Gemini parseado com sucesso!")
         except json.JSONDecodeError as json_err:
             # Se não for JSON válido, criar estrutura básica
-            print(f"⚠️ Resposta do Gemini não é JSON válido. Erro: {json_err}")
-            print(f"📝 Tentando usar resposta como texto e criar estrutura básica...")
+            print(f"Resposta do Gemini não é JSON válido. Erro: {json_err}")
+            print(f"Tentando usar resposta como texto e criar estrutura básica...")
             dados = criar_plano_fallback(request, resposta)
         
         return processar_resposta_gemini_fallback(dados, request)
         
     except Exception as e:
         # Fallback em caso de erro
-        print(f"❌ Erro ao processar resposta do Gemini: {str(e)}")
+        print(f"Erro ao processar resposta do Gemini: {str(e)}")
         dados_fallback = criar_plano_fallback(request, resposta)
         return processar_resposta_gemini_fallback(dados_fallback, request)
 
@@ -265,7 +265,7 @@ def processar_resposta_gemini_fallback(dados: dict, request: PlanoEstudosRequest
                 )
                 etapas.append(etapa)
             except Exception as e:
-                print(f"⚠️ Erro ao processar etapa: {str(e)}")
+                print(f"Erro ao processar etapa: {str(e)}")
                 continue
         
         # Se não houver etapas, criar uma básica
@@ -291,7 +291,7 @@ def processar_resposta_gemini_fallback(dados: dict, request: PlanoEstudosRequest
             motivacao=dados.get("motivacao", f"Continue focado em {request.objetivo_carreira}!") or f"Continue focado em {request.objetivo_carreira}!"
         )
     except Exception as e:
-        print(f"❌ Erro ao processar resposta fallback: {str(e)}")
+        print(f"Erro ao processar resposta fallback: {str(e)}")
         import traceback
         traceback.print_exc()
         # Retornar resposta mínima válida
@@ -411,7 +411,7 @@ async def gerar_plano_estudos_endpoint(request: PlanoEstudosRequest):
         raise
     except Exception as e:
         # Capturar qualquer outro erro e retornar fallback
-        print(f"❌ Erro inesperado no endpoint: {str(e)}")
+        print(f"Erro inesperado no endpoint: {str(e)}")
         import traceback
         traceback.print_exc()
         # Retornar plano fallback em caso de qualquer erro
@@ -419,7 +419,7 @@ async def gerar_plano_estudos_endpoint(request: PlanoEstudosRequest):
             plano_fallback_dict = criar_plano_fallback(request, "")
             return processar_resposta_gemini_fallback(plano_fallback_dict, request)
         except Exception as fallback_error:
-            print(f"❌ Erro no fallback: {str(fallback_error)}")
+            print(f"Erro no fallback: {str(fallback_error)}")
             raise HTTPException(status_code=500, detail=f"Erro ao gerar plano de estudos: {str(e)}")
 
 

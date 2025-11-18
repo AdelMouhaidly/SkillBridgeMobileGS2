@@ -12,7 +12,7 @@ env_path = Path(__file__).resolve().parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
 
-print("🔑 GEMINI_API_KEY carregada?:", os.getenv("GEMINI_API_KEY") is not None)
+print("GEMINI_API_KEY carregada?:", os.getenv("GEMINI_API_KEY") is not None)
 
 
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
@@ -77,12 +77,12 @@ Perfil do usuário:
 
     except Exception:
         resposta_falsa = (
-            "⚙️ Modo offline (simulação):\n\n"
-            "1️⃣ Curso recomendado: **Desenvolvimento Backend com Java (iniciante)** — ideal para fortalecer sua lógica.\n"
-            "2️⃣ Curso recomendado: **Fundamentos de IA Generativa** — combina com seu interesse em IA.\n"
-            "3️⃣ Curso recomendado: **Git e Versionamento de Código** — essencial para projetos colaborativos.\n\n"
-            "💡 Sugestão de vagas: Estágio em Backend, Suporte Técnico, Jovem Aprendiz em TI.\n\n"
-            "📊 Observação: baseado nos dados IoT, seu foco e horário de estudo são adequados para rotinas noturnas."
+            "Modo offline (simulação):\n\n"
+            "1. Curso recomendado: **Desenvolvimento Backend com Java (iniciante)** — ideal para fortalecer sua lógica.\n"
+            "2. Curso recomendado: **Fundamentos de IA Generativa** — combina com seu interesse em IA.\n"
+            "3. Curso recomendado: **Git e Versionamento de Código** — essencial para projetos colaborativos.\n\n"
+            "Sugestão de vagas: Estágio em Backend, Suporte Técnico, Jovem Aprendiz em TI.\n\n"
+            "Observação: baseado nos dados IoT, seu foco e horário de estudo são adequados para rotinas noturnas."
         )
         return {"recomendacoes": resposta_falsa}
 
@@ -163,11 +163,11 @@ Tarefas:
 
     except Exception:
         resumo_falso = (
-            "⚙️ Modo offline (simulação):\n\n"
-            "📋 Resumo: Vaga de estágio para auxiliar no desenvolvimento de APIs e manutenção de sistemas backend.\n"
-            "🧠 Requisitos: lógica de programação, noções de Java e Git.\n"
-            "💰 Benefícios: não informados.\n"
-            "⚠️ Pontos de atenção: jornada de trabalho e salário não especificados.\n"
-            "✅ Avaliação do perfil: adequado — já possui conhecimentos em Java e Python, basta aprofundar em REST e banco de dados."
+            "Modo offline (simulação):\n\n"
+            "Resumo: Vaga de estágio para auxiliar no desenvolvimento de APIs e manutenção de sistemas backend.\n"
+            "Requisitos: lógica de programação, noções de Java e Git.\n"
+            "Benefícios: não informados.\n"
+            "Pontos de atenção: jornada de trabalho e salário não especificados.\n"
+            "Avaliação do perfil: adequado — já possui conhecimentos em Java e Python, basta aprofundar em REST e banco de dados."
         )
         return {"analise_vaga": resumo_falso}

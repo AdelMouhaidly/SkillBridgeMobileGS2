@@ -2,7 +2,7 @@
 
 Plataforma de capacitação profissional voltada à transição energética. Conecta talentos a cursos e vagas sustentáveis utilizando IA generativa para sugerir próximos passos em requalificação.
 
-## 📁 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 ProjetoGS/
@@ -12,7 +12,7 @@ ProjetoGS/
 └── postman/               # Coleção Postman para testes
 ```
 
-## 🚀 Início Rápido
+## Início Rápido
 
 ### 1. Banco de Dados (Oracle)
 
@@ -44,14 +44,14 @@ python -m uvicorn main:app --reload --port 8000
 
 **Ver:** `IOT/README.md` para instruções completas.
 
-## 📚 Documentação
+## Documentação
 
 - **API Java**: `api/README.md`
 - **Banco de Dados**: `bancodedados/README.md`
 - **IOT (Deep Learning)**: `IOT/README.md`
 - **Postman Collection**: `postman/SkillBridge.postman_collection.json`
 
-## 🔗 Integração entre Módulos
+## Integração entre Módulos
 
 ```
 Cliente → API Java (8080) → Servidor IOT Python (8000) → Gemini API
@@ -59,20 +59,23 @@ Cliente → API Java (8080) → Servidor IOT Python (8000) → Gemini API
           Oracle Database
 ```
 
-## 🧪 Testes
+## Testes
 
 ### API Java
+
 ```bash
 cd api
 mvn test
 ```
 
 ### Postman
+
 Importe `postman/SkillBridge.postman_collection.json` e configure:
+
 - `{{base_url}}` = `http://localhost:8080`
 - Obtenha token via `/auth/login` e configure `{{auth_token}}`
 
-## 📋 Pré-requisitos
+## Pré-requisitos
 
 - Java 21
 - Maven 3.9+
@@ -80,17 +83,16 @@ Importe `postman/SkillBridge.postman_collection.json` e configure:
 - Oracle Database (acessível)
 - Chave API Gemini (https://aistudio.google.com/apikey)
 
-## 🎯 Funcionalidades Principais
+## Funcionalidades Principais
 
-- ✅ Autenticação JWT
-- ✅ Gerenciamento de usuários, vagas e cursos
-- ✅ Cálculo de compatibilidade usuário × vaga
-- ✅ Recomendações com IA (Gemini)
-- ✅ Geração de planos de estudos personalizados
-- ✅ Integração Oracle via PL/SQL
-- ✅ Cache e internacionalização
+- Autenticação JWT
+- Gerenciamento de usuários, vagas e cursos
+- Cálculo de compatibilidade usuário × vaga
+- Recomendações com IA (Gemini)
+- Geração de planos de estudos personalizados
+- Integração Oracle via PL/SQL
+- Cache e internacionalização
 
 ---
 
 **SkillBridge – conectando talentos, habilidades e oportunidades no futuro da energia.**
-

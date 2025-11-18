@@ -178,7 +178,7 @@
       ]
     },
     {
-      "name": "💼 Vagas",
+      "name": "Vagas",
       "item": [
         {
           "name": "Listar (paginação)",
@@ -298,7 +298,7 @@
       ]
     },
     {
-      "name": "📚 Cursos",
+      "name": "Cursos",
       "item": [
         {
           "name": "Listar (paginação)",
@@ -418,7 +418,7 @@
       ]
     },
     {
-      "name": "📝 Aplicações",
+      "name": "Aplicações",
       "item": [
         {
           "name": "Listar (paginação)",
@@ -538,7 +538,7 @@
       ]
     },
     {
-      "name": "🤖 IA e Recomendações",
+      "name": "IA e Recomendações",
       "item": [
         {
           "name": "Recomendações Básicas",
@@ -600,7 +600,7 @@
       ]
     },
     {
-      "name": "🎓 IOT - Plano de Estudos",
+      "name": "IOT - Plano de Estudos",
       "item": [
         {
           "name": "Gerar Plano de Estudos (IA Generativa)",
