@@ -1,11 +1,23 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { API_URL } from '../config/api';
-import { LoginData, RegisterData, User } from '../types';
+import { 
+  LoginData, 
+  RegisterData, 
+  User, 
+  RecomendacaoBasica, 
+  RecomendacaoIA, 
+  PlanoEstudosRequest, 
+  PlanoEstudosResponse,
+  Aplicacao,
+  AplicacaoRequest,
+  Vaga,
+  Curso
+} from '../types';
 
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 10000,
+  timeout: 30000, // Aumentado para requisições de IA
   headers: {
     'Content-Type': 'application/json',
   },
@@ -15,6 +27,8 @@ api.interceptors.request.use(async (config) => {
   const token = await AsyncStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  } else {
+    console.warn('Requisição sem token de autenticação:', config.url);
   }
   return config;
 }, (error) => {
@@ -23,26 +37,91 @@ api.interceptors.request.use(async (config) => {
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (error.response?.status === 401) {
-      AsyncStorage.removeItem('token');
-      AsyncStorage.removeItem('user');
+      // Token inválido ou expirado
+      await AsyncStorage.removeItem('token');
+      await AsyncStorage.removeItem('user');
+    } else if (error.response?.status === 403) {
+      // Acesso negado - token pode estar inválido ou usuário sem permissão
+      console.error('Acesso negado (403). Verificando token...');
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        console.error('Token não encontrado no storage');
+      } else {
+        console.error('Token encontrado, mas acesso negado. Pode ser problema de permissão ou token inválido.');
+      }
     }
     return Promise.reject(error);
   }
 );
+
 export const login = async (data: LoginData) => {
-  const response = await api.post('/auth/login', data);
-  await AsyncStorage.setItem('token', response.data.token);
-  await AsyncStorage.setItem('user', JSON.stringify(response.data.usuario));
-  return response.data;
+  try {
+    const response = await api.post('/auth/login', {
+      email: data.email,
+      senha: data.senha,
+    });
+    
+    if (response.data?.token && response.data?.usuario) {
+      await AsyncStorage.setItem('token', response.data.token);
+      await AsyncStorage.setItem('user', JSON.stringify(response.data.usuario));
+      return response.data;
+    } else {
+      throw new Error('Resposta inválida do servidor');
+    }
+  } catch (error: any) {
+    console.error('Erro no login:', error);
+    if (error.code === 'ECONNREFUSED' || error.message?.includes('Network Error')) {
+      throw new Error('Não foi possível conectar ao servidor. Verifique se a API está rodando e a URL está correta.');
+    }
+    throw error;
+  }
 };
 
 export const register = async (data: RegisterData) => {
-  const response = await api.post('/auth/register', data);
-  await AsyncStorage.setItem('token', response.data.token);
-  await AsyncStorage.setItem('user', JSON.stringify(response.data.usuario));
-  return response.data;
+  try {
+    // Garante que a senha tenha pelo menos 6 caracteres (validação do backend)
+    if (data.senha && data.senha.length < 6) {
+      throw new Error('A senha deve ter pelo menos 6 caracteres');
+    }
+
+    // Prepara o payload com todos os campos, incluindo objetivoCarreira e competencias
+    const payload: any = {
+      nome: data.nome,
+      email: data.email,
+      senha: data.senha,
+    };
+
+    // Adiciona campos opcionais apenas se estiverem presentes
+    if (data.telefone) payload.telefone = data.telefone;
+    if (data.cidade) payload.cidade = data.cidade;
+    if (data.uf) payload.uf = data.uf;
+    if (data.objetivoCarreira) payload.objetivoCarreira = data.objetivoCarreira;
+    if (data.competencias && data.competencias.length > 0) {
+      payload.competencias = data.competencias;
+    }
+
+    const response = await api.post('/auth/register', payload);
+    
+    if (response.data?.token && response.data?.usuario) {
+      await AsyncStorage.setItem('token', response.data.token);
+      await AsyncStorage.setItem('user', JSON.stringify(response.data.usuario));
+      return response.data;
+    } else {
+      throw new Error('Resposta inválida do servidor');
+    }
+  } catch (error: any) {
+    console.error('Erro no registro:', error);
+    if (error.code === 'ECONNREFUSED' || error.message?.includes('Network Error')) {
+      throw new Error('Não foi possível conectar ao servidor. Verifique se a API está rodando e a URL está correta.');
+    }
+    // Se for erro de validação do backend, passa a mensagem
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw error;
+  }
 };
 
 export const logout = async () => {
@@ -55,6 +134,22 @@ export const getUser = async (): Promise<User | null> => {
   return user ? JSON.parse(user) : null;
 };
 
+export const getUserById = async (userId: string): Promise<User> => {
+  const response = await api.get(`/usuarios/${userId}`);
+  return response.data;
+};
+
+export const updateUser = async (userId: string, data: Partial<User>): Promise<User> => {
+  const response = await api.put(`/usuarios/${userId}`, data);
+  const updatedUser = response.data;
+  await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+  return updatedUser;
+};
+
+export const deleteUser = async (userId: string): Promise<void> => {
+  await api.delete(`/usuarios/${userId}`);
+};
+
 export const isAuthenticated = async (): Promise<boolean> => {
   const token = await AsyncStorage.getItem('token');
   return !!token;
@@ -65,9 +160,90 @@ export const getVagas = async () => {
   return response.data.content || response.data || [];
 };
 
+export const getVagaById = async (id: string): Promise<Vaga> => {
+  const response = await api.get(`/vagas/${id}`);
+  return response.data;
+};
+
 export const getCursos = async () => {
   const response = await api.get('/cursos?page=0&size=50');
   return response.data.content || response.data || [];
+};
+
+export const getCursoById = async (id: string): Promise<Curso> => {
+  const response = await api.get(`/cursos/${id}`);
+  return response.data;
+};
+
+// Recomendações Básicas (Automáticas)
+export const getRecomendacoesBasicas = async (usuarioId: string): Promise<RecomendacaoBasica> => {
+  const response = await api.get(`/recomendacoes/${usuarioId}`);
+  return response.data;
+};
+
+// Recomendações com IA (Sob Demanda)
+export const gerarRecomendacoesIA = async (usuarioId: string): Promise<RecomendacaoIA> => {
+  const response = await api.post(`/api/v1/ia/recomendacoes/${usuarioId}`);
+  return response.data;
+};
+
+export const getRecomendacoesIA = async (usuarioId: string): Promise<RecomendacaoIA | null> => {
+  try {
+    const response = await api.get(`/api/v1/ia/recomendacoes/${usuarioId}`);
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return null;
+    }
+    throw error;
+  }
+};
+
+// Plano de Estudos
+export const gerarPlanoEstudos = async (data: PlanoEstudosRequest): Promise<PlanoEstudosResponse> => {
+  try {
+    // Garantir que os dados estão no formato correto
+    const payload: any = {
+      objetivoCarreira: data.objetivoCarreira?.trim(),
+      nivelAtual: data.nivelAtual,
+      competenciasAtuais: data.competenciasAtuais || [],
+      tempoDisponivelSemana: data.tempoDisponivelSemana,
+    };
+
+    // Adicionar campos opcionais apenas se estiverem presentes
+    if (data.prazoMeses && data.prazoMeses > 0) {
+      payload.prazoMeses = data.prazoMeses;
+    }
+    if (data.areasInteresse && data.areasInteresse.length > 0) {
+      payload.areasInteresse = data.areasInteresse;
+    }
+
+    const response = await api.post('/api/v1/planos-estudos/gerar', payload);
+    return response.data;
+  } catch (error: any) {
+    console.error('Erro ao gerar plano de estudos:', error);
+    // Re-throw para que o componente possa tratar
+    throw error;
+  }
+};
+
+// Aplicações (Candidaturas)
+export const getAplicacoes = async (): Promise<Aplicacao[]> => {
+  const response = await api.get('/aplicacoes?page=0&size=50');
+  return response.data.content || response.data || [];
+};
+
+export const getAplicacaoById = async (id: string): Promise<Aplicacao> => {
+  const response = await api.get(`/aplicacoes/${id}`);
+  return response.data;
+};
+
+export const criarAplicacao = async (data: AplicacaoRequest): Promise<Aplicacao> => {
+  const response = await api.post('/aplicacoes', {
+    vagaId: data.vagaId,
+    compatibilidade: data.compatibilidade,
+  });
+  return response.data;
 };
 
 export default api;

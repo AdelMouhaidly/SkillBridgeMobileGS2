@@ -5,12 +5,13 @@ import {
   StyleSheet,
   ScrollView,
   RefreshControl,
+  TouchableOpacity,
 } from 'react-native';
 import { Briefcase, MapPin, DollarSign } from 'lucide-react-native';
 import { getVagas } from '../services/api';
 import { Vaga } from '../types';
 
-export default function Vagas() {
+export default function Vagas({ navigation }: any) {
   const [vagas, setVagas] = useState<Vaga[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -60,8 +61,11 @@ export default function Vagas() {
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
+      showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.title}>Vagas Disponíveis</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Vagas Disponíveis</Text>
+      </View>
 
       {vagas.length === 0 && !loading ? (
         <View style={styles.emptyContainer}>
@@ -73,9 +77,12 @@ export default function Vagas() {
         </View>
       ) : (
         vagas.map((vaga) => (
-          <View key={vaga.id} style={styles.card}>
+          <TouchableOpacity
+            key={vaga.id}
+            style={styles.card}
+            onPress={() => navigation?.navigate('VagaDetalhes', { vagaId: vaga.id })}
+          >
             <View style={styles.cardHeader}>
-              <Briefcase size={24} color="#2196F3" />
               <View style={styles.cardHeaderText}>
                 <Text style={styles.cardTitle}>{vaga.titulo}</Text>
                 <Text style={styles.company}>{vaga.empresa}</Text>
@@ -87,18 +94,36 @@ export default function Vagas() {
                 <MapPin size={16} color="#666" />
                 <Text style={styles.infoText}>{vaga.localidade}</Text>
               </View>
+              {vaga.tipoContrato && (
+                <Text style={styles.infoText}>{vaga.tipoContrato} •</Text>
+              )}
+              {vaga.formatoTrabalho && (
+                <Text style={styles.infoText}>{vaga.formatoTrabalho} •</Text>
+              )}
+              {vaga.nivelSenioridade && (
+                <Text style={styles.infoText}>{vaga.nivelSenioridade}</Text>
+              )}
               {vaga.salario && (
                 <View style={styles.infoRow}>
                   <DollarSign size={16} color="#4CAF50" />
-                  <Text style={[styles.infoText, styles.salary]}>{vaga.salario}</Text>
+                  <Text style={[styles.infoText, styles.salary]}>
+                    {typeof vaga.salario === 'number' ? `R$ ${vaga.salario.toLocaleString('pt-BR')}` : vaga.salario}
+                  </Text>
                 </View>
               )}
             </View>
 
-            <Text style={styles.description} numberOfLines={3}>
-              {vaga.descricao}
-            </Text>
-          </View>
+            {vaga.responsabilidades && (
+              <Text style={styles.description} numberOfLines={2}>
+                {vaga.responsabilidades}
+              </Text>
+            )}
+            {vaga.descricao && !vaga.responsabilidades && (
+              <Text style={styles.description} numberOfLines={2}>
+                {vaga.descricao}
+              </Text>
+            )}
+          </TouchableOpacity>
         ))
       )}
     </ScrollView>
@@ -111,7 +136,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   content: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 30,
+  },
+  header: {
+    marginBottom: 20,
     paddingTop: 10,
   },
   loading: {
@@ -121,15 +151,15 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 20,
   },
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 60,
+    paddingVertical: 80,
+    paddingHorizontal: 20,
   },
   empty: {
     textAlign: 'center',
@@ -146,9 +176,10 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#f5f5f5',
-    padding: 16,
-    borderRadius: 15,
-    marginBottom: 12,
+    padding: 18,
+    borderRadius: 16,
+    marginBottom: 16,
+    marginHorizontal: 0,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -173,6 +204,8 @@ const styles = StyleSheet.create({
   cardInfo: {
     gap: 6,
     marginBottom: 10,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   infoRow: {
     flexDirection: 'row',

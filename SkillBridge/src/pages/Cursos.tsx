@@ -5,12 +5,13 @@ import {
   StyleSheet,
   ScrollView,
   RefreshControl,
+  TouchableOpacity,
 } from 'react-native';
-import { BookOpen, Clock } from 'lucide-react-native';
+import { BookOpen } from 'lucide-react-native';
 import { getCursos } from '../services/api';
 import { Curso } from '../types';
 
-export default function Cursos() {
+export default function Cursos({ navigation }: any) {
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -60,8 +61,11 @@ export default function Cursos() {
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
+      showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.title}>Cursos Disponíveis</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Cursos Disponíveis</Text>
+      </View>
 
       {cursos.length === 0 && !loading ? (
         <View style={styles.emptyContainer}>
@@ -73,26 +77,35 @@ export default function Cursos() {
         </View>
       ) : (
         cursos.map((curso) => (
-          <View key={curso.id} style={styles.card}>
+          <TouchableOpacity
+            key={curso.id}
+            style={styles.card}
+            onPress={() => navigation?.navigate('CursoDetalhes', { cursoId: curso.id })}
+          >
             <View style={styles.cardHeader}>
-              <BookOpen size={24} color="#4CAF50" />
               <View style={styles.cardHeaderText}>
-                <Text style={styles.cardTitle}>{curso.titulo}</Text>
-                <Text style={styles.instructor}>Por {curso.instrutor}</Text>
+                <Text style={styles.cardTitle}>{curso.nome || curso.titulo}</Text>
+                {curso.instituicao && (
+                  <Text style={styles.instructor}>{curso.instituicao}</Text>
+                )}
               </View>
             </View>
 
             <View style={styles.cardInfo}>
-              <View style={styles.infoRow}>
-                <Clock size={16} color="#666" />
-                <Text style={styles.infoText}>{curso.carga_horaria}h</Text>
-              </View>
+              <Text style={styles.infoText}>{curso.area} •</Text>
+              <Text style={styles.infoText}>{curso.duracaoHoras || curso.carga_horaria || 0}h •</Text>
+              <Text style={styles.infoText}>{curso.modalidade}</Text>
+              {curso.nivel && (
+                <Text style={styles.infoText}> • Nível: {curso.nivel}</Text>
+              )}
             </View>
 
-            <Text style={styles.description} numberOfLines={3}>
-              {curso.descricao}
-            </Text>
-          </View>
+            {curso.descricao && (
+              <Text style={styles.description} numberOfLines={3}>
+                {curso.descricao}
+              </Text>
+            )}
+          </TouchableOpacity>
         ))
       )}
     </ScrollView>
@@ -105,7 +118,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   content: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 30,
+  },
+  header: {
+    marginBottom: 20,
     paddingTop: 10,
   },
   loading: {
@@ -115,15 +133,15 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 20,
   },
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 60,
+    paddingVertical: 80,
+    paddingHorizontal: 20,
   },
   empty: {
     textAlign: 'center',
@@ -140,9 +158,10 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#f5f5f5',
-    padding: 16,
-    borderRadius: 15,
-    marginBottom: 12,
+    padding: 18,
+    borderRadius: 16,
+    marginBottom: 16,
+    marginHorizontal: 0,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -166,6 +185,9 @@ const styles = StyleSheet.create({
   },
   cardInfo: {
     marginBottom: 10,
+    gap: 6,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   infoRow: {
     flexDirection: 'row',

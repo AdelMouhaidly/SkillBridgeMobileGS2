@@ -4,56 +4,97 @@ import {
   Text,
   StyleSheet,
   ScrollView,
+  TouchableOpacity,
 } from 'react-native';
-import { Zap, Code, CheckCircle } from 'lucide-react-native';
+import { Info, Code, Calendar, Package, ArrowLeft } from 'lucide-react-native';
+import { COMMIT_HASH, APP_VERSION, BUILD_DATE } from '../config/buildInfo';
 
-export default function Sobre() {
-  const COMMIT_HASH = '37e8f0f';
-
+export default function Sobre({ navigation }: any) {
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
-        <Zap size={60} color="#2196F3" fill="#2196F3" />
-        <Text style={styles.title}>SkillBridge</Text>
-        <Text style={styles.version}>Versão 1.0.0</Text>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation?.goBack()}
+        >
+          <ArrowLeft size={24} color="#fff" />
+        </TouchableOpacity>
+        <Text style={styles.title}>Sobre o App</Text>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Sobre o Projeto</Text>
-        <Text style={styles.text}>
-          Plataforma de capacitação profissional voltada à transição energética.
-          Conecta talentos a cursos e vagas sustentáveis.
-        </Text>
-      </View>
-
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Code size={24} color="#2196F3" />
-          <Text style={styles.sectionTitle}>Tecnologias</Text>
+      <View style={styles.content}>
+        {/* Logo/Ícone do App */}
+        <View style={styles.logoContainer}>
+          <View style={styles.logoCircle}>
+            <Info size={48} color="#2196F3" />
+          </View>
+          <Text style={styles.appName}>SkillBridge</Text>
+          <Text style={styles.appTagline}>
+            Conectando talentos a oportunidades
+          </Text>
         </View>
-        <Text style={styles.text}>React Native • TypeScript{'\n'}API REST • Spring Boot • JWT</Text>
-      </View>
 
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <CheckCircle size={24} color="#4CAF50" />
-          <Text style={styles.sectionTitle}>Funcionalidades</Text>
+        {/* Informações do App */}
+        <View style={styles.infoSection}>
+          <View style={styles.infoCard}>
+            <View style={styles.infoHeader}>
+              <Package size={20} color="#2196F3" />
+              <Text style={styles.infoTitle}>Versão</Text>
+            </View>
+            <Text style={styles.infoValue}>{APP_VERSION}</Text>
+          </View>
+
+          <View style={styles.infoCard}>
+            <View style={styles.infoHeader}>
+              <Code size={20} color="#2196F3" />
+              <Text style={styles.infoTitle}>Commit Hash</Text>
+            </View>
+            <Text style={styles.infoHash}>{COMMIT_HASH}</Text>
+            <Text style={styles.infoSubtext}>
+              Hash de referência do commit atual
+            </Text>
+          </View>
+
+          <View style={styles.infoCard}>
+            <View style={styles.infoHeader}>
+              <Calendar size={20} color="#2196F3" />
+              <Text style={styles.infoTitle}>Data de Build</Text>
+            </View>
+            <Text style={styles.infoValue}>{BUILD_DATE}</Text>
+          </View>
         </View>
-        <Text style={styles.text}>
-          • Autenticação segura{'\n'}
-          • Listagem de vagas{'\n'}
-          • Catálogo de cursos{'\n'}
-          • Perfil personalizado
-        </Text>
-      </View>
 
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>
-          Commit: {COMMIT_HASH}
-        </Text>
-        <Text style={styles.footerText}>
-          Global Solution - FIAP 2025
-        </Text>
+        {/* Descrição do App */}
+        <View style={styles.descriptionCard}>
+          <Text style={styles.descriptionTitle}>Sobre o SkillBridge</Text>
+          <Text style={styles.descriptionText}>
+            O SkillBridge é uma plataforma inovadora que conecta profissionais 
+            a oportunidades de carreira personalizadas. Utilizando inteligência 
+            artificial, oferecemos recomendações de vagas e cursos baseadas no 
+            seu perfil, competências e objetivos profissionais.
+          </Text>
+          <Text style={styles.descriptionText}>
+            Desenvolva suas habilidades, encontre a vaga ideal e crie um plano 
+            de estudos personalizado para alcançar seus objetivos de carreira.
+          </Text>
+        </View>
+
+        {/* Informações Técnicas */}
+        <View style={styles.techCard}>
+          <Text style={styles.techTitle}>Informações Técnicas</Text>
+          <View style={styles.techItem}>
+            <Text style={styles.techLabel}>Framework:</Text>
+            <Text style={styles.techValue}>React Native / Expo</Text>
+          </View>
+          <View style={styles.techItem}>
+            <Text style={styles.techLabel}>Backend:</Text>
+            <Text style={styles.techValue}>Spring Boot</Text>
+          </View>
+          <View style={styles.techItem}>
+            <Text style={styles.techLabel}>IA:</Text>
+            <Text style={styles.techValue}>Google Gemini</Text>
+          </View>
+        </View>
       </View>
     </ScrollView>
   );
@@ -64,56 +105,134 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  content: {
-    padding: 20,
-  },
   header: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 40,
+    padding: 20,
+    paddingTop: 50,
+    backgroundColor: '#2196F3',
+    borderBottomLeftRadius: 25,
+    borderBottomRightRadius: 25,
+  },
+  backButton: {
+    marginRight: 12,
+    padding: 4,
   },
   title: {
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#2196F3',
-    marginTop: 15,
-    marginBottom: 5,
+    color: '#fff',
   },
-  version: {
-    fontSize: 14,
+  content: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginVertical: 30,
+  },
+  logoCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#E3F2FD',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  appName: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+  },
+  appTagline: {
+    fontSize: 16,
     color: '#666',
+    textAlign: 'center',
   },
-  section: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: 15,
+  infoSection: {
+    marginBottom: 24,
+  },
+  infoCard: {
+    backgroundColor: '#F5F5F5',
     padding: 18,
-    marginBottom: 15,
+    borderRadius: 16,
+    marginBottom: 16,
   },
-  sectionHeader: {
+  infoHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
     marginBottom: 12,
   },
-  sectionTitle: {
-    fontSize: 18,
+  infoTitle: {
+    fontSize: 16,
     fontWeight: '600',
     color: '#333',
   },
-  text: {
+  infoValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#2196F3',
+  },
+  infoHash: {
+    fontSize: 14,
+    fontFamily: 'monospace',
+    color: '#2196F3',
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  infoSubtext: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 4,
+  },
+  descriptionCard: {
+    backgroundColor: '#F5F5F5',
+    padding: 20,
+    borderRadius: 16,
+    marginBottom: 24,
+  },
+  descriptionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 12,
+  },
+  descriptionText: {
     fontSize: 14,
     color: '#666',
     lineHeight: 22,
+    marginBottom: 12,
   },
-  footer: {
-    alignItems: 'center',
-    marginTop: 30,
-    paddingTop: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
+  techCard: {
+    backgroundColor: '#F5F5F5',
+    padding: 20,
+    borderRadius: 16,
   },
-  footerText: {
-    fontSize: 12,
-    color: '#999',
-    marginBottom: 4,
+  techTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 16,
+  },
+  techItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  techLabel: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+  },
+  techValue: {
+    fontSize: 14,
+    color: '#2196F3',
+    fontWeight: '600',
   },
 });

@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, ActivityIndicator } from 'react-native';
-import { Home, Briefcase, BookOpen, User, Info } from 'lucide-react-native';
+import { Home, Briefcase, BookOpen, User, Sparkles, Target } from 'lucide-react-native';
 import { isAuthenticated } from '../services/api';
 
 import Login from '../pages/Login';
@@ -12,12 +12,18 @@ import Dashboard from '../pages/Dashboard';
 import Vagas from '../pages/Vagas';
 import Cursos from '../pages/Cursos';
 import Perfil from '../pages/Perfil';
+import Recomendacoes from '../pages/Recomendacoes';
+import PlanoEstudos from '../pages/PlanoEstudos';
+import VagaDetalhes from '../pages/VagaDetalhes';
+import CursoDetalhes from '../pages/CursoDetalhes';
+import MinhasAplicacoes from '../pages/MinhasAplicacoes';
+import AplicacaoDetalhes from '../pages/AplicacaoDetalhes';
 import Sobre from '../pages/Sobre';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function MainTabs({ onLogout }: any) {
+function MainTabs({ onLogout, navigation }: any) {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -28,10 +34,19 @@ function MainTabs({ onLogout }: any) {
     >
       <Tab.Screen 
         name="Dashboard" 
-        component={Dashboard}
         options={{ 
           title: 'Início',
           tabBarIcon: ({ color, size }) => <Home size={size} color={color} />
+        }}
+      >
+        {() => <Dashboard navigation={navigation} />}
+      </Tab.Screen>
+      <Tab.Screen 
+        name="Recomendacoes" 
+        component={Recomendacoes}
+        options={{ 
+          title: 'Recomendações',
+          tabBarIcon: ({ color, size }) => <Sparkles size={size} color={color} />
         }}
       />
       <Tab.Screen 
@@ -51,22 +66,23 @@ function MainTabs({ onLogout }: any) {
         }}
       />
       <Tab.Screen 
+        name="PlanoEstudos"
+        options={{ 
+          title: 'Plano',
+          tabBarIcon: ({ color, size }) => <Target size={size} color={color} />
+        }}
+      >
+        {() => <PlanoEstudos navigation={navigation} />}
+      </Tab.Screen>
+      <Tab.Screen 
         name="Perfil"
         options={{ 
           title: 'Perfil',
           tabBarIcon: ({ color, size }) => <User size={size} color={color} />
         }}
       >
-        {() => <Perfil onLogout={onLogout} />}
+        {() => <Perfil onLogout={onLogout} navigation={navigation} />}
       </Tab.Screen>
-      <Tab.Screen 
-        name="Sobre" 
-        component={Sobre}
-        options={{ 
-          title: 'Sobre',
-          tabBarIcon: ({ color, size }) => <Info size={size} color={color} />
-        }}
-      />
     </Tab.Navigator>
   );
 }
@@ -105,9 +121,17 @@ export default function AppNavigator() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {authenticated ? (
-          <Stack.Screen name="Main">
-            {() => <MainTabs onLogout={handleLogout} />}
-          </Stack.Screen>
+          <>
+            <Stack.Screen name="Main">
+              {({ navigation }) => <MainTabs onLogout={handleLogout} navigation={navigation} />}
+            </Stack.Screen>
+            <Stack.Screen name="PlanoEstudos" component={PlanoEstudos} />
+            <Stack.Screen name="VagaDetalhes" component={VagaDetalhes} />
+            <Stack.Screen name="CursoDetalhes" component={CursoDetalhes} />
+            <Stack.Screen name="MinhasAplicacoes" component={MinhasAplicacoes} />
+            <Stack.Screen name="AplicacaoDetalhes" component={AplicacaoDetalhes} />
+            <Stack.Screen name="Sobre" component={Sobre} />
+          </>
         ) : (
           <>
             <Stack.Screen name="Login">
