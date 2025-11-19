@@ -26,6 +26,7 @@ Plataforma de capacitação profissional voltada à transição energética. A a
 ### 1. Configurar Banco de Dados Oracle
 
 Execute os scripts na ordem (em `../bancodedados/sql/`):
+
 1. `create_tables.sql`
 2. `functions.sql`
 3. `packages.sql`
@@ -33,6 +34,7 @@ Execute os scripts na ordem (em `../bancodedados/sql/`):
 5. `create_recomendacao_ia_table.sql` (para recomendações com IA)
 
 Popular dados iniciais:
+
 ```sql
 BEGIN
   pkg_usuarios.popular_dados_iniciais;
@@ -63,6 +65,7 @@ iot.service.url=http://localhost:8000
 ```
 
 **Ou configure via variáveis de ambiente:**
+
 - `DB_USERNAME`
 - `DB_PASSWORD`
 - `GEMINI_API_KEY`
@@ -105,6 +108,7 @@ mvn test
 ```
 
 **Principais testes:**
+
 - `UsuarioServiceTest` - Cadastro e chamada a `PKG_USUARIOS`
 - `AplicacaoServiceTest` - Registro de candidatura via `PKG_VAGAS`
 - `VagaServiceTest` - Cálculo de compatibilidade
@@ -113,32 +117,40 @@ mvn test
 ## Endpoints Principais
 
 ### Autenticação
+
 - `POST /auth/register` - Registrar novo usuário (gera JWT)
 - `POST /auth/login` - Login e obter token JWT
 
 ### Usuários
+
 - `GET /api/v1/usuarios` - Listar usuários (paginado, cache)
 
 ### Vagas
+
 - `GET /api/v1/vagas` - Listar vagas (paginado)
 - `GET /api/v1/vagas/{id}/compatibilidade` - Calcular compatibilidade usuário × vaga
 - `POST /api/v1/vagas` - Criar nova vaga
 
 ### Aplicações
+
 - `POST /api/v1/aplicacoes` - Registrar candidatura (chama `PKG_VAGAS.REGISTRAR_APLICACAO`)
 - `GET /api/v1/aplicacoes` - Listar aplicações
 
 ### Cursos
+
 - `GET /api/v1/cursos` - Listar cursos (paginado)
 
 ### Recomendações com IA
+
 - `POST /api/v1/ia/recomendacoes/{usuarioId}` - Gerar recomendações usando Gemini
 - `GET /api/v1/ia/recomendacoes/{usuarioId}` - Buscar última recomendação
 
 ### Planos de Estudos (Integração IOT)
+
 - `POST /api/v1/planos-estudos/gerar` - Gerar plano de estudos personalizado
 
-**Todos os endpoints (exceto `/auth/**`, Swagger e actuator) requerem:**
+**Todos os endpoints (exceto `/auth/**`, Swagger e actuator) requerem:\*\*
+
 ```
 Authorization: Bearer <token-jwt>
 ```
@@ -169,6 +181,7 @@ A API integra com o módulo Python para gerar planos de estudos:
 **Endpoint:** `POST /api/v1/planos-estudos/gerar`
 
 **Request:**
+
 ```json
 {
   "objetivoCarreira": "Tornar-me desenvolvedor Java Sênior",
@@ -221,15 +234,18 @@ java -jar target/skillbridge-api-0.0.1-SNAPSHOT.jar
 ## Troubleshooting
 
 ### Erro de conexão com Oracle
+
 - Verifique credenciais em `application.properties`
 - Confirme acesso à rede/VPN
 - Valide scripts SQL executados
 
 ### Erro 403 em endpoints protegidos
+
 - Obtenha token via `/auth/login`
 - Inclua header: `Authorization: Bearer <token>`
 
 ### Erro ao chamar serviço IOT
+
 - Verifique se servidor Python está rodando na porta 8000
 - Confirme `iot.service.url` em `application.properties`
 
