@@ -189,7 +189,7 @@ def chamar_gemini_plano_estudos(prompt: str) -> str:
         # Mostrar preview da chave sendo usada
         api_key = os.getenv("GEMINI_API_KEY", "")
         key_preview = f"{api_key[:10]}...{api_key[-4:]}" if len(api_key) > 14 else "***"
-        print(f"📡 Chamando Gemini API (modelo: gemini-2.0-flash-exp) com chave: {key_preview}")
+        print(f"Chamando Gemini API (modelo: gemini-2.0-flash-exp) com chave: {key_preview}")
         response = client.models.generate_content(
             model='gemini-2.0-flash-exp',
             contents=prompt,

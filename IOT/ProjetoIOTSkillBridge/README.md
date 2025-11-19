@@ -2,20 +2,20 @@
 
 Módulo Python/FastAPI que implementa **IA Generativa** usando Google Gemini para gerar planos de estudos personalizados. Integrado com a API Java Spring Boot.
 
-## Descrição
+## 📋 Descrição
 
 Este módulo utiliza **Google Gemini API** para gerar planos de estudos personalizados baseados no perfil do usuário, demonstrando:
-- Integração com IA Generativa (Gemini)
-- Prompt Engineering avançado
-- Geração de conteúdo estruturado em JSON
-- Integração via REST API com Java
+- ✅ Integração com IA Generativa (Gemini)
+- ✅ Prompt Engineering avançado
+- ✅ Geração de conteúdo estruturado em JSON
+- ✅ Integração via REST API com Java
 
-## Pré-requisitos
+## 🚀 Pré-requisitos
 
 - **Python 3.10+** instalado
 - **Chave da API Gemini** (obtenha em: https://aistudio.google.com/apikey)
 
-## Instalação
+## 📦 Instalação
 
 ### 1. Instalar Dependências
 
@@ -31,7 +31,7 @@ pip install -r requirements.txt
 - `pydantic` - Validação de dados
 - `python-dotenv` - Gerenciamento de variáveis de ambiente
 
-### 2. Configurar Chave da API Gemini
+### 2. Configurar Chave da API Gemini (já tem uma no projeto)
 
 Crie arquivo `.env` na pasta `IOT/GlobalSolutionIOT/`:
 
@@ -45,7 +45,7 @@ GEMINI_API_KEY=sua-chave-gemini-aqui
 3. Clique em "Create API Key"
 4. Copie a chave gerada (formato: `AIzaSy...`)
 
-## Como Executar
+## ▶️ Como Executar
 
 ### Opção 1: Executar via main.py (Recomendado)
 
@@ -76,7 +76,7 @@ curl http://localhost:8000/health
 }
 ```
 
-## Endpoints Disponíveis
+## 📡 Endpoints Disponíveis
 
 ### POST `/gerar-plano-estudos`
 
@@ -130,10 +130,16 @@ Gera plano de estudos personalizado usando IA Generativa (Gemini).
 
 Verifica saúde do serviço.
 
-## Integração com API Java
+## 🔗 Integração com API Java
 
 A API Java chama este serviço via REST:
 
+**Em Produção (Render):**
+```
+API Java → POST https://projetoiotskillbridge.onrender.com/gerar-plano-estudos → Resposta JSON
+```
+
+**Localmente:**
 ```
 API Java → POST http://localhost:8000/gerar-plano-estudos → Resposta JSON
 ```
@@ -143,18 +149,26 @@ API Java → POST http://localhost:8000/gerar-plano-estudos → Resposta JSON
 POST /api/v1/planos-estudos/gerar
 ```
 
-**Configuração na API Java** (`application.properties`):
+**Configuração na API Java** (`application.properties` ou variáveis de ambiente):
 ```properties
+# Produção (Render)
+iot.service.url=https://projetoiotskillbridge.onrender.com
+
+# Desenvolvimento local
 iot.service.url=http://localhost:8000
 ```
 
+**URLs dos Deploys:**
+- **API Java:** `https://projetojavaskillbridge.onrender.com`
+- **Serviço IoT:** `https://projetoiotskillbridge.onrender.com`
+
 **Fluxo completo:**
-1. Cliente faz requisição para API Java: `POST /api/v1/planos-estudos/gerar`
-2. API Java chama serviço Python: `POST http://localhost:8000/gerar-plano-estudos`
+1. Cliente faz requisição para API Java: `POST https://projetojavaskillbridge.onrender.com/api/v1/planos-estudos/gerar`
+2. API Java chama serviço Python: `POST https://projetoiotskillbridge.onrender.com/gerar-plano-estudos`
 3. Serviço Python chama Gemini API
 4. Resposta retorna via Java → Cliente
 
-## Como Funciona a IA
+## 🧠 Como Funciona a IA
 
 ### Prompt Engineering
 
@@ -178,7 +192,7 @@ O sistema registra:
 - Sucesso ou erro na chamada
 - Uso de fallback quando necessário
 
-## Documentação Swagger
+## 📝 Documentação Swagger
 
 Após iniciar o servidor, acesse:
 
@@ -188,7 +202,7 @@ http://localhost:8000/docs
 
 Interface interativa para testar os endpoints.
 
-## Troubleshooting
+## 🐛 Troubleshooting
 
 ### Erro: "GEMINI_API_KEY não encontrada"
 - Verifique se arquivo `.env` existe em `IOT/GlobalSolutionIOT/`
@@ -213,7 +227,7 @@ netstat -ano | findstr :8000
 python -m uvicorn main:app --reload --port 8001
 ```
 
-## Estrutura do Projeto
+## 📁 Estrutura do Projeto
 
 ```
 IOT/
@@ -225,16 +239,16 @@ IOT/
 └── README.md                      # Este arquivo
 ```
 
-## Requisitos Atendidos
+## ✅ Requisitos Atendidos
 
-- **IA Generativa**: Gemini API para geração de texto
-- **Prompt Engineering**: Prompts estruturados e personalizados
-- **Integração com Java**: REST API funcional
-- **Deep Learning**: Modelo de IA aplicado
-- **Tratamento de Erros**: Fallback inteligente
-- **Documentação**: README completo + Swagger
+- ✅ **IA Generativa**: Gemini API para geração de texto
+- ✅ **Prompt Engineering**: Prompts estruturados e personalizados
+- ✅ **Integração com Java**: REST API funcional
+- ✅ **Deep Learning**: Modelo de IA aplicado
+- ✅ **Tratamento de Erros**: Fallback inteligente
+- ✅ **Documentação**: README completo + Swagger
 
-## Tecnologias
+## 📚 Tecnologias
 
 - **Python 3.10+**
 - **FastAPI** - Framework web moderno

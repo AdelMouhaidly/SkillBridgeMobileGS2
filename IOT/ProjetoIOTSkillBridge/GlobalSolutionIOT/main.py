@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional, Dict
 from google import genai 
@@ -21,6 +22,15 @@ app = FastAPI(
     title="Módulo de IA - Recomendações de Cursos e Vagas",
     description="IA integrada a IoT/IoB para recomendações personalizadas e resumo de vagas",
     version="1.0.0",
+)
+
+# Configurar CORS para permitir requisições da API Java
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Em produção, especificar domínios específicos
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -171,3 +181,31 @@ Tarefas:
             "Avaliação do perfil: adequado — já possui conhecimentos em Java e Python, basta aprofundar em REST e banco de dados."
         )
         return {"analise_vaga": resumo_falso}
+
+
+@app.get("/")
+async def root():
+    """Rota raiz - informações da API"""
+    return {
+        "mensagem": "Bem-vindo à API de IA - Recomendações de Cursos e Vagas",
+        "servico": "IOT - Geração de Plano de Estudos",
+        "versao": "1.0.0",
+        "modelo_ia": "Gemini 2.5 Flash",
+        "endpoints": {
+            "documentacao": "/docs",
+            "health_check": "/health",
+            "recomendacoes": "/recomendacoes",
+            "resumo_vaga": "/resumo-vaga",
+            "gerar_plano_estudos": "/gerar-plano-estudos"
+        }
+    }
+
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {
+        "status": "ok",
+        "servico": "IOT - Geração de Plano de Estudos",
+        "modelo_ia": "Gemini 2.5 Flash"
+    }
