@@ -2,7 +2,7 @@
 
 Plataforma de capacitação profissional voltada à transição energética. A aplicação conecta talentos a cursos e vagas sustentáveis e utiliza IA generativa para sugerir próximos passos em requalificação.
 
-## 📋 Stack Tecnológica
+## Stack Tecnológica
 
 - **Java 21**
 - **Maven 3.9+**
@@ -11,7 +11,7 @@ Plataforma de capacitação profissional voltada à transição energética. A a
 - **Oracle Database 19c**
 - **RabbitMQ** (opcional para eventos)
 
-## 🚀 Pré-requisitos
+## Pré-requisitos
 
 1. **Java 21** instalado
 2. **Maven 3.9+** instalado
@@ -21,7 +21,7 @@ Plataforma de capacitação profissional voltada à transição energética. A a
 4. **Servidor IOT Python** rodando (para planos de estudos)
    - Ver instruções em `../IOT/README.md`
 
-## 📦 Configuração Inicial
+## Configuração Inicial
 
 ### 1. Configurar Banco de Dados Oracle
 
@@ -75,7 +75,7 @@ cd api
 mvn clean install
 ```
 
-## ▶️ Como Executar
+## Como Executar
 
 ### Executar Localmente
 
@@ -96,7 +96,7 @@ curl http://localhost:8080/actuator/health
 
 Abra no navegador: `http://localhost:8080/swagger-ui.html`
 
-## 🧪 Testes Automatizados
+## Testes Automatizados
 
 Execute os testes unitários:
 
@@ -110,7 +110,7 @@ mvn test
 - `VagaServiceTest` - Cálculo de compatibilidade
 - `RecommendationServiceTest` - Recomendações com IA
 
-## 📡 Endpoints Principais
+## Endpoints Principais
 
 ### Autenticação
 - `POST /auth/register` - Registrar novo usuário (gera JWT)
@@ -138,12 +138,12 @@ mvn test
 ### Planos de Estudos (Integração IOT)
 - `POST /api/v1/planos-estudos/gerar` - Gerar plano de estudos personalizado
 
-**⚠️ Todos os endpoints (exceto `/auth/**`, Swagger e actuator) requerem:**
+**Todos os endpoints (exceto `/auth/**`, Swagger e actuator) requerem:**
 ```
 Authorization: Bearer <token-jwt>
 ```
 
-## 📚 Coleção Postman
+## Coleção Postman
 
 Importe `../postman/SkillBridge.postman_collection.json` no Postman:
 
@@ -152,7 +152,7 @@ Importe `../postman/SkillBridge.postman_collection.json` no Postman:
 3. Copie o token para `{{auth_token}}`
 4. Teste os endpoints protegidos
 
-## 🔗 Integração com Oracle
+## Integração com Oracle
 
 A API chama procedures PL/SQL:
 
@@ -162,7 +162,7 @@ A API chama procedures PL/SQL:
 
 Triggers de auditoria registram operações em `log_auditoria`.
 
-## 🔗 Integração com IOT (Deep Learning)
+## Integração com IOT (Deep Learning)
 
 A API integra com o módulo Python para gerar planos de estudos:
 
@@ -182,7 +182,7 @@ A API integra com o módulo Python para gerar planos de estudos:
 
 **Configuração:** `iot.service.url=http://localhost:8000` (servidor Python deve estar rodando)
 
-## 🌐 Deploy em Produção
+## Deploy em Produção
 
 A aplicação está disponível em produção através do Render:
 
@@ -194,7 +194,7 @@ A aplicação está disponível em produção através do Render:
 - **Swagger UI:** https://projetoiotskillbridge.onrender.com/swagger-ui.html
 - **Health Check:** https://projetoiotskillbridge.onrender.com/actuator/health
 
-## 📦 Build e Deploy
+## Build e Deploy
 
 ### Gerar JAR
 
@@ -218,7 +218,7 @@ java -jar target/skillbridge-api-0.0.1-SNAPSHOT.jar
 2. Garanta acesso ao Oracle (VPN/rede corporativa)
 3. Inicie o servidor IOT Python separadamente
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Erro de conexão com Oracle
 - Verifique credenciais em `application.properties`
@@ -233,7 +233,7 @@ java -jar target/skillbridge-api-0.0.1-SNAPSHOT.jar
 - Verifique se servidor Python está rodando na porta 8000
 - Confirme `iot.service.url` em `application.properties`
 
-## 📝 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 api/
