@@ -5,11 +5,9 @@ const getApiUrl = () => {
     return process.env.API_URL;
   }
   
-  if (Platform.OS === 'android') {
-    return 'http://10.0.2.2:8080';
-  }
-  
-  return 'http://localhost:8080';
+  return 'https://projetojavaskillbridge.onrender.com';
 };
 
 export const API_URL = getApiUrl();
+
+export const IOT_API_URL = 'https://projetoiotskillbridge.onrender.com';

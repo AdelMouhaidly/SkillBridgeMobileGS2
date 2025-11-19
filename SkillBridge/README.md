@@ -32,11 +32,27 @@ npm start
 
 ## Configuração da API
 
-Edite `src/config/api.ts` para configurar a URL da API:
+O app está configurado para usar as APIs de produção no Render:
 
-```typescript
-export const API_URL = 'http://SEU_IP:8080';
-```
+- **API Principal (Java)**: `https://projetojavaskillbridge.onrender.com`
+- **API IoT (Python)**: `https://projetoiotskillbridge.onrender.com`
+
+### Para desenvolvimento local
+
+Se precisar usar uma API local, você pode:
+
+1. **Usar variável de ambiente**:
+   ```bash
+   export API_URL=http://localhost:8080
+   npm start
+   ```
+
+2. **Ou editar diretamente** `src/config/api.ts`:
+   ```typescript
+   return 'http://10.0.2.2:8080'; // Android Emulator
+   // ou
+   return 'http://localhost:8080'; // iOS Simulator / Web
+   ```
 
 ## Commit Hash
 
