@@ -9,10 +9,14 @@ import {
   TextInput,
   Modal,
   ActivityIndicator,
+  Image,
+  Dimensions,
 } from 'react-native';
 import { User as UserIcon, Mail, MapPin, LogOut, Edit2, Target, Tag, X, Plus, Info, Trash2 } from 'lucide-react-native';
 import { getUser, logout, updateUser, getUserById, deleteUser } from '../services/api';
 import { User } from '../types';
+
+const { width } = Dimensions.get('window');
 
 export default function Perfil({ onLogout, navigation }: any) {
   const [user, setUser] = useState<User | null>(null);
@@ -134,6 +138,13 @@ export default function Perfil({ onLogout, navigation }: any) {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
+        <View style={styles.headerLogoContainer}>
+          <Image
+            source={require('../images/logoSkillBridge.png')}
+            style={styles.headerLogo}
+            resizeMode="contain"
+          />
+        </View>
         <View style={styles.avatar}>
           <UserIcon size={40} color="#fff" />
         </View>
@@ -393,6 +404,15 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     paddingVertical: 40,
+  },
+  headerLogoContainer: {
+    marginBottom: 20,
+  },
+  headerLogo: {
+    width: width * 0.18,
+    height: width * 0.18,
+    maxWidth: 70,
+    maxHeight: 70,
   },
   avatar: {
     width: 90,

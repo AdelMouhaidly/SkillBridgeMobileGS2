@@ -9,10 +9,14 @@ import {
   Alert,
   ActivityIndicator,
   Modal,
+  Image,
+  Dimensions,
 } from "react-native";
 import { BookOpen, Plus, X, Sparkles, CheckCircle } from "lucide-react-native";
 import { gerarPlanoEstudos, getUser } from "../services/api";
 import { PlanoEstudosRequest, PlanoEstudosResponse, User } from "../types";
+
+const { width } = Dimensions.get('window');
 
 export default function PlanoEstudos({ navigation }: any) {
   const [user, setUser] = useState<User | null>(null);
@@ -187,6 +191,13 @@ export default function PlanoEstudos({ navigation }: any) {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
+        <View style={styles.headerLogoContainer}>
+          <Image
+            source={require('../images/logoSkillBridge.png')}
+            style={styles.headerLogo}
+            resizeMode="contain"
+          />
+        </View>
         <Text style={styles.title}>Plano de Estudos</Text>
         <Text style={styles.subtitle}>Personalize seu aprendizado</Text>
       </View>
@@ -481,6 +492,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#2196F3",
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
+  },
+  headerLogoContainer: {
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  headerLogo: {
+    width: width * 0.15,
+    height: width * 0.15,
+    maxWidth: 60,
+    maxHeight: 60,
   },
   title: {
     fontSize: 28,

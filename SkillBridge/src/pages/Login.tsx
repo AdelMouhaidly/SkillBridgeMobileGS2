@@ -8,9 +8,13 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Image,
+  Dimensions,
 } from 'react-native';
-import { Mail, Lock, LogIn } from 'lucide-react-native';
+import { Mail, Lock } from 'lucide-react-native';
 import { login } from '../services/api';
+
+const { width } = Dimensions.get('window');
 
 export default function Login({ navigation, onLogin }: any) {
   const [email, setEmail] = useState('');
@@ -61,11 +65,13 @@ export default function Login({ navigation, onLogin }: any) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={styles.content}>
-        <View style={styles.logo}>
-          <LogIn size={50} color="#2196F3" />
+        <View style={styles.logoContainer}>
+          <Image
+            source={require('../images/logoSkillBridge.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
         </View>
-        <Text style={styles.title}>SkillBridge</Text>
-        <Text style={styles.subtitle}>Conectando talentos ao futuro</Text>
 
         <View style={styles.inputContainer}>
           <Mail size={20} color="#666" style={styles.icon} />
@@ -123,22 +129,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 24,
   },
-  logo: {
+  logoContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: width * 0.12,
   },
-  title: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#2196F3',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 15,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 50,
+  logoImage: {
+    width: width * 0.4,
+    height: width * 0.4,
+    maxWidth: 200,
+    maxHeight: 200,
   },
   inputContainer: {
     flexDirection: 'row',

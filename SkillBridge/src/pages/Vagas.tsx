@@ -6,10 +6,14 @@ import {
   ScrollView,
   RefreshControl,
   TouchableOpacity,
+  Image,
+  Dimensions,
 } from 'react-native';
 import { Briefcase, MapPin, DollarSign } from 'lucide-react-native';
 import { getVagas } from '../services/api';
 import { Vaga } from '../types';
+
+const { width } = Dimensions.get('window');
 
 export default function Vagas({ navigation }: any) {
   const [vagas, setVagas] = useState<Vaga[]>([]);
@@ -64,6 +68,13 @@ export default function Vagas({ navigation }: any) {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
+        <View style={styles.headerLogoContainer}>
+          <Image
+            source={require('../images/logoSkillBridge.png')}
+            style={styles.headerLogo}
+            resizeMode="contain"
+          />
+        </View>
         <Text style={styles.title}>Vagas Disponíveis</Text>
       </View>
 
@@ -143,6 +154,16 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 20,
     paddingTop: 10,
+    alignItems: 'center',
+  },
+  headerLogoContainer: {
+    marginBottom: 12,
+  },
+  headerLogo: {
+    width: width * 0.2,
+    height: width * 0.2,
+    maxWidth: 80,
+    maxHeight: 80,
   },
   loading: {
     textAlign: 'center',

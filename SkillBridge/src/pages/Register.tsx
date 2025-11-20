@@ -9,7 +9,11 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Image,
+  Dimensions,
 } from "react-native";
+
+const { width } = Dimensions.get('window');
 import {
   User,
   Mail,
@@ -116,6 +120,14 @@ export default function Register({ navigation, onRegister }: any) {
         >
           <ArrowLeft size={24} color="#333" />
         </TouchableOpacity>
+
+        <View style={styles.logoContainer}>
+          <Image
+            source={require('../images/logoSkillBridge.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+        </View>
 
         <Text style={styles.title}>Criar Conta</Text>
         <Text style={styles.subtitle}>Preencha os dados abaixo</Text>
@@ -258,14 +270,24 @@ const styles = StyleSheet.create({
   backButton: {
     marginBottom: 20,
   },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: width * 0.08,
+  },
+  logoImage: {
+    width: width * 0.35,
+    height: width * 0.35,
+    maxWidth: 180,
+    maxHeight: 180,
+  },
   title: {
-    fontSize: 32,
+    fontSize: width * 0.08,
     fontWeight: "bold",
     color: "#333",
     marginBottom: 8,
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: width * 0.04,
     color: "#666",
     marginBottom: 30,
   },

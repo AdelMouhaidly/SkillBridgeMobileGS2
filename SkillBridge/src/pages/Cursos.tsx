@@ -6,10 +6,14 @@ import {
   ScrollView,
   RefreshControl,
   TouchableOpacity,
+  Image,
+  Dimensions,
 } from 'react-native';
 import { BookOpen } from 'lucide-react-native';
 import { getCursos } from '../services/api';
 import { Curso } from '../types';
+
+const { width } = Dimensions.get('window');
 
 export default function Cursos({ navigation }: any) {
   const [cursos, setCursos] = useState<Curso[]>([]);
@@ -64,6 +68,13 @@ export default function Cursos({ navigation }: any) {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
+        <View style={styles.headerLogoContainer}>
+          <Image
+            source={require('../images/logoSkillBridge.png')}
+            style={styles.headerLogo}
+            resizeMode="contain"
+          />
+        </View>
         <Text style={styles.title}>Cursos Disponíveis</Text>
       </View>
 
@@ -125,6 +136,16 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 20,
     paddingTop: 10,
+    alignItems: 'center',
+  },
+  headerLogoContainer: {
+    marginBottom: 12,
+  },
+  headerLogo: {
+    width: width * 0.2,
+    height: width * 0.2,
+    maxWidth: 80,
+    maxHeight: 80,
   },
   loading: {
     textAlign: 'center',

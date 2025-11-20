@@ -1,25 +1,69 @@
-# SkillBridge API
+# SkillBridge API - Backend Java Spring Boot
 
-Plataforma de capacitação profissional voltada à transição energética. A aplicação conecta talentos a cursos e vagas sustentáveis e utiliza IA generativa para sugerir próximos passos em requalificação.
+API REST desenvolvida em Java Spring Boot que serve como backend principal da plataforma SkillBridge. A aplicação conecta talentos a oportunidades de cursos e vagas sustentáveis, utilizando Inteligência Artificial para fornecer recomendações personalizadas e integração com módulo IoT para geração de planos de estudos.
+
+## Sobre a API
+
+A SkillBridge API é uma aplicação robusta construída com Spring Boot que gerencia toda a lógica de negócio da plataforma. Ela fornece endpoints RESTful para autenticação, gerenciamento de usuários, vagas, cursos, recomendações com IA e integração com serviços externos.
+
+### Funcionalidades Principais
+
+- Autenticação e autorização com JWT (JSON Web Tokens)
+- Gerenciamento completo de usuários com perfil profissional
+- CRUD de vagas e cursos
+- Sistema de candidaturas a vagas
+- Cálculo automático de compatibilidade entre usuário e vaga
+- Recomendações personalizadas usando Google Gemini AI
+- Integração com módulo IoT para geração de planos de estudos
+- Sistema de auditoria com triggers Oracle
+- Cache de dados para melhor performance
+- Documentação automática com Swagger/OpenAPI
 
 ## Stack Tecnológica
 
-- **Java 21**
-- **Maven 3.9+**
-- **Spring Boot 3.5.7** (Web, Data JPA, Validation, Security, Cache, Actuator)
-- **Springdoc OpenAPI** (Swagger)
-- **Oracle Database 19c**
-- **RabbitMQ** (opcional para eventos)
+- **Java 21** - Linguagem de programação
+- **Maven 3.9+** - Gerenciador de dependências
+- **Spring Boot 3.5.7** - Framework principal
+  - Spring Web - REST APIs
+  - Spring Data JPA - Persistência de dados
+  - Spring Validation - Validação de dados
+  - Spring Security - Segurança e autenticação
+  - Spring Cache - Cache de dados
+  - Spring Actuator - Monitoramento e health checks
+- **Springdoc OpenAPI** - Documentação Swagger
+- **Oracle Database 19c** - Banco de dados relacional
+- **JWT** - Autenticação stateless
+
+## Arquitetura da API
+
+A API segue uma arquitetura em camadas:
+
+```
+Controllers (REST Endpoints)
+    ↓
+Services (Lógica de Negócio)
+    ↓
+Repositories (Acesso a Dados)
+    ↓
+Oracle Database (PL/SQL Packages)
+```
+
+### Integrações
+
+- **Oracle Database**: Utiliza packages PL/SQL para operações complexas
+- **Google Gemini API**: Para recomendações inteligentes com IA
+- **API IoT Python**: Para geração de planos de estudos personalizados
 
 ## Pré-requisitos
 
-1. **Java 21** instalado
+1. **Java 21** instalado e configurado
 2. **Maven 3.9+** instalado
 3. **Oracle Database** acessível
    - Scripts assumem usuário `RM557863`
    - Ver instruções em `../bancodedados/README.md`
 4. **Servidor IOT Python** rodando (para planos de estudos)
-   - Ver instruções em `../IOT/README.md`
+   - Ver instruções em `../IOT/ProjetoIOTSkillBridge/README.md`
+5. **Chave API Gemini** (obtenha em: https://aistudio.google.com/apikey)
 
 ## Configuração Inicial
 
@@ -27,11 +71,11 @@ Plataforma de capacitação profissional voltada à transição energética. A a
 
 Execute os scripts na ordem (em `../bancodedados/sql/`):
 
-1. `create_tables.sql`
-2. `functions.sql`
-3. `packages.sql`
-4. `triggers.sql`
-5. `create_recomendacao_ia_table.sql` (para recomendações com IA)
+1. `create_tables.sql` - Criação das tabelas
+2. `functions.sql` - Funções PL/SQL utilitárias
+3. `packages.sql` - Packages `PKG_USUARIOS` e `PKG_VAGAS`
+4. `triggers.sql` - Triggers de auditoria
+5. `create_recomendacao_ia_table.sql` - Tabela para recomendações com IA
 
 Popular dados iniciais:
 
@@ -66,10 +110,11 @@ iot.service.url=http://localhost:8000
 
 **Ou configure via variáveis de ambiente:**
 
-- `DB_USERNAME`
-- `DB_PASSWORD`
-- `GEMINI_API_KEY`
-- `IOT_SERVICE_URL`
+- `DB_USERNAME` - Usuário do Oracle
+- `DB_PASSWORD` - Senha do Oracle
+- `GEMINI_API_KEY` - Chave da API Gemini
+- `IOT_SERVICE_URL` - URL do serviço IoT Python
+- `JWT_SECRET` - Secret para assinatura de tokens JWT
 
 ### 3. Instalar Dependências
 
@@ -99,88 +144,179 @@ curl http://localhost:8080/actuator/health
 
 Abra no navegador: `http://localhost:8080/swagger-ui.html`
 
-## Testes Automatizados
-
-Execute os testes unitários:
-
-```bash
-mvn test
-```
-
-**Principais testes:**
-
-- `UsuarioServiceTest` - Cadastro e chamada a `PKG_USUARIOS`
-- `AplicacaoServiceTest` - Registro de candidatura via `PKG_VAGAS`
-- `VagaServiceTest` - Cálculo de compatibilidade
-- `RecommendationServiceTest` - Recomendações com IA
+A documentação Swagger fornece interface interativa para testar todos os endpoints da API.
 
 ## Endpoints Principais
 
 ### Autenticação
 
-- `POST /auth/register` - Registrar novo usuário (gera JWT)
-- `POST /auth/login` - Login e obter token JWT
+#### POST `/auth/register`
+
+Registra um novo usuário no sistema e retorna token JWT.
+
+**Request Body:**
+
+```json
+{
+  "nome": "João Silva",
+  "email": "joao@email.com",
+  "senha": "senha123",
+  "telefone": "(11) 99999-9999",
+  "cidade": "São Paulo",
+  "uf": "SP",
+  "objetivoCarreira": "Desenvolvedor Java Sênior",
+  "competencias": ["Java", "Spring Boot", "SQL"]
+}
+```
+
+**Response:** Token JWT para autenticação
+
+#### POST `/auth/login`
+
+Autentica um usuário existente e retorna token JWT.
+
+**Request Body:**
+
+```json
+{
+  "email": "joao@email.com",
+  "senha": "senha123"
+}
+```
+
+**Response:** Token JWT
 
 ### Usuários
 
-- `GET /api/v1/usuarios` - Listar usuários (paginado, cache)
+#### GET `/api/v1/usuarios`
+
+Lista todos os usuários com paginação e cache.
+
+**Headers:** `Authorization: Bearer <token-jwt>`
+
+**Query Parameters:**
+
+- `page` - Número da página (padrão: 0)
+- `size` - Tamanho da página (padrão: 20)
 
 ### Vagas
 
-- `GET /api/v1/vagas` - Listar vagas (paginado)
-- `GET /api/v1/vagas/{id}/compatibilidade` - Calcular compatibilidade usuário × vaga
-- `POST /api/v1/vagas` - Criar nova vaga
+#### GET `/api/v1/vagas`
+
+Lista todas as vagas disponíveis com paginação.
+
+**Headers:** `Authorization: Bearer <token-jwt>`
+
+**Query Parameters:**
+
+- `page` - Número da página
+- `size` - Tamanho da página
+
+#### GET `/api/v1/vagas/{id}`
+
+Obtém detalhes de uma vaga específica.
+
+**Headers:** `Authorization: Bearer <token-jwt>`
+
+#### GET `/api/v1/vagas/{id}/compatibilidade`
+
+Calcula a compatibilidade entre o usuário autenticado e uma vaga específica.
+
+**Headers:** `Authorization: Bearer <token-jwt>`
+
+**Response:**
+
+```json
+{
+  "compatibilidade": 85.5,
+  "competenciasMatch": ["Java", "Spring Boot"],
+  "competenciasFaltantes": ["Docker", "Kubernetes"]
+}
+```
+
+#### POST `/api/v1/vagas`
+
+Cria uma nova vaga (requer permissões de administrador).
+
+**Headers:** `Authorization: Bearer <token-jwt>`
 
 ### Aplicações
 
-- `POST /api/v1/aplicacoes` - Registrar candidatura (chama `PKG_VAGAS.REGISTRAR_APLICACAO`)
-- `GET /api/v1/aplicacoes` - Listar aplicações
+#### POST `/api/v1/aplicacoes`
+
+Registra uma candidatura do usuário autenticado a uma vaga.
+
+**Headers:** `Authorization: Bearer <token-jwt>`
+
+**Request Body:**
+
+```json
+{
+  "vagaId": "123",
+  "mensagem": "Tenho interesse nesta vaga"
+}
+```
+
+Este endpoint chama a procedure PL/SQL `PKG_VAGAS.REGISTRAR_APLICACAO`.
+
+#### GET `/api/v1/aplicacoes`
+
+Lista todas as candidaturas do usuário autenticado.
+
+**Headers:** `Authorization: Bearer <token-jwt>`
 
 ### Cursos
 
-- `GET /api/v1/cursos` - Listar cursos (paginado)
+#### GET `/api/v1/cursos`
+
+Lista todos os cursos disponíveis com paginação.
+
+**Headers:** `Authorization: Bearer <token-jwt>`
+
+**Query Parameters:**
+
+- `page` - Número da página
+- `size` - Tamanho da página
+
+#### GET `/api/v1/cursos/{id}`
+
+Obtém detalhes de um curso específico.
+
+**Headers:** `Authorization: Bearer <token-jwt>`
 
 ### Recomendações com IA
 
-- `POST /api/v1/ia/recomendacoes/{usuarioId}` - Gerar recomendações usando Gemini
-- `GET /api/v1/ia/recomendacoes/{usuarioId}` - Buscar última recomendação
+#### POST `/api/v1/ia/recomendacoes/{usuarioId}`
+
+Gera recomendações personalizadas usando Google Gemini AI baseadas no perfil do usuário.
+
+**Headers:** `Authorization: Bearer <token-jwt>`
+
+**Response:**
+
+```json
+{
+  "usuarioId": "123",
+  "recomendacoes": "Baseado no seu perfil...",
+  "dataGeracao": "2025-01-15T10:30:00"
+}
+```
+
+#### GET `/api/v1/ia/recomendacoes/{usuarioId}`
+
+Busca a última recomendação gerada para um usuário.
+
+**Headers:** `Authorization: Bearer <token-jwt>`
 
 ### Planos de Estudos (Integração IOT)
 
-- `POST /api/v1/planos-estudos/gerar` - Gerar plano de estudos personalizado
+#### POST `/api/v1/planos-estudos/gerar`
 
-**Todos os endpoints (exceto `/auth/**`, Swagger e actuator) requerem:\*\*
+Gera um plano de estudos personalizado através da integração com o módulo IoT Python.
 
-```
-Authorization: Bearer <token-jwt>
-```
+**Headers:** `Authorization: Bearer <token-jwt>`
 
-## Coleção Postman
-
-Importe `../postman/SkillBridge.postman_collection.json` no Postman:
-
-1. Configure `{{base_url}}` = `http://localhost:8080`
-2. Execute `Auth - Registrar usuário` → `Auth - Login`
-3. Copie o token para `{{auth_token}}`
-4. Teste os endpoints protegidos
-
-## Integração com Oracle
-
-A API chama procedures PL/SQL:
-
-- **`PKG_USUARIOS.INSERIR_USUARIO`** - Cadastro de usuários
-- **`PKG_VAGAS.REGISTRAR_APLICACAO`** - Registro de candidaturas
-- **`PKG_VAGAS.CALCULAR_COMPATIBILIDADE`** - Cálculo de compatibilidade
-
-Triggers de auditoria registram operações em `log_auditoria`.
-
-## Integração com IOT (Deep Learning)
-
-A API integra com o módulo Python para gerar planos de estudos:
-
-**Endpoint:** `POST /api/v1/planos-estudos/gerar`
-
-**Request:**
+**Request Body:**
 
 ```json
 {
@@ -193,19 +329,97 @@ A API integra com o módulo Python para gerar planos de estudos:
 }
 ```
 
-**Configuração:** `iot.service.url=http://localhost:8000` (servidor Python deve estar rodando)
+**Response:** Plano de estudos estruturado com etapas, recursos e métricas.
+
+**Nota:** Requer que o servidor IoT Python esteja rodando na URL configurada em `iot.service.url`.
+
+### Segurança
+
+Todos os endpoints (exceto `/auth/**`, Swagger e actuator) requerem autenticação:
+
+```
+Authorization: Bearer <token-jwt>
+```
+
+O token JWT é obtido através dos endpoints de autenticação e deve ser incluído em todas as requisições subsequentes.
+
+## Integração com Oracle Database
+
+A API utiliza packages PL/SQL para operações complexas:
+
+### Procedures Principais
+
+- **`PKG_USUARIOS.INSERIR_USUARIO`** - Cadastro de usuários com validações
+- **`PKG_VAGAS.REGISTRAR_APLICACAO`** - Registro de candidaturas com validações
+- **`PKG_VAGAS.CALCULAR_COMPATIBILIDADE`** - Cálculo de compatibilidade entre competências
+
+### Funções
+
+- **`fn_gerar_json_manual`** - Gera JSON para exportação de dados
+- **`fn_calcular_compatibilidade`** - Calcula compatibilidade entre competências
+
+### Triggers de Auditoria
+
+Triggers automáticos registram todas as operações importantes:
+
+- INSERT em `usuario`, `vaga`, `curso`, `aplicacao`
+- UPDATE em `usuario`, `vaga`
+- DELETE em `vaga`, `curso`
+
+Logs são salvos automaticamente na tabela `log_auditoria` para rastreabilidade.
+
+## Integração com IOT (Deep Learning)
+
+A API integra com o módulo Python FastAPI para gerar planos de estudos personalizados usando IA Generativa.
+
+**Fluxo de Integração:**
+
+1. Cliente faz requisição: `POST /api/v1/planos-estudos/gerar`
+2. API Java valida dados e chama serviço IoT: `POST {iot.service.url}/gerar-plano-estudos`
+3. Serviço IoT processa com Gemini API e retorna plano estruturado
+4. API Java retorna resposta ao cliente
+
+**Configuração:** `iot.service.url=http://localhost:8000` (ou URL de produção)
+
+**Tratamento de Erros:** A API trata timeouts e erros do serviço IoT, retornando mensagens apropriadas ao cliente.
+
+## Testes Automatizados
+
+Execute os testes unitários:
+
+```bash
+mvn test
+```
+
+**Principais testes:**
+
+- `UsuarioServiceTest` - Testa cadastro e chamada a `PKG_USUARIOS`
+- `AplicacaoServiceTest` - Testa registro de candidatura via `PKG_VAGAS`
+- `VagaServiceTest` - Testa cálculo de compatibilidade
+- `RecommendationServiceTest` - Testa recomendações com IA
+
+## Coleção Postman
+
+Importe `../postman/SkillBridge.postman_collection.json` no Postman:
+
+1. Configure `{{base_url}}` = `http://localhost:8080`
+2. Execute `Auth - Registrar usuário` → `Auth - Login`
+3. Copie o token para `{{auth_token}}`
+4. Teste os endpoints protegidos
+
+A coleção Postman inclui exemplos de todas as requisições principais.
 
 ## Deploy em Produção
 
 A aplicação está disponível em produção através do Render:
 
-- **API Java (Spring Boot):** https://projetoiotskillbridge.onrender.com/
-- **Servidor IoT (Python):** https://projetoiotskillbridge.onrender.com
+- **API Java (Spring Boot):** https://projetojavaskillbridge.onrender.com
+- **Swagger UI:** https://projetojavaskillbridge.onrender.com/swagger-ui.html
+- **Health Check:** https://projetojavaskillbridge.onrender.com/actuator/health
 
-### Documentação da API em Produção
+### Nota sobre Hibernação do Render
 
-- **Swagger UI:** https://projetoiotskillbridge.onrender.com/swagger-ui.html
-- **Health Check:** https://projetoiotskillbridge.onrender.com/actuator/health
+O Render oferece um plano gratuito que coloca os serviços em hibernação após 15 minutos de inatividade. A primeira requisição após hibernação pode levar 30-60 segundos para "acordar" o serviço.
 
 ## Build e Deploy
 
@@ -214,6 +428,8 @@ A aplicação está disponível em produção através do Render:
 ```bash
 mvn clean package
 ```
+
+O JAR será gerado em: `target/skillbridge-api-0.0.1-SNAPSHOT.jar`
 
 ### Executar JAR
 
@@ -230,24 +446,7 @@ java -jar target/skillbridge-api-0.0.1-SNAPSHOT.jar
    - `JWT_SECRET`
 2. Garanta acesso ao Oracle (VPN/rede corporativa)
 3. Inicie o servidor IOT Python separadamente
-
-## Troubleshooting
-
-### Erro de conexão com Oracle
-
-- Verifique credenciais em `application.properties`
-- Confirme acesso à rede/VPN
-- Valide scripts SQL executados
-
-### Erro 403 em endpoints protegidos
-
-- Obtenha token via `/auth/login`
-- Inclua header: `Authorization: Bearer <token>`
-
-### Erro ao chamar serviço IOT
-
-- Verifique se servidor Python está rodando na porta 8000
-- Confirme `iot.service.url` em `application.properties`
+4. Configure health checks para manter serviço ativo
 
 ## Estrutura do Projeto
 
@@ -271,6 +470,39 @@ api/
 └── pom.xml
 ```
 
+## Troubleshooting
+
+### Erro de conexão com Oracle
+
+- Verifique credenciais em `application.properties`
+- Confirme acesso à rede/VPN
+- Valide scripts SQL executados
+- Teste conexão manual com SQL Developer
+
+### Erro 403 em endpoints protegidos
+
+- Obtenha token via `/auth/login`
+- Inclua header: `Authorization: Bearer <token>`
+- Verifique se token não expirou (tokens JWT têm validade)
+
+### Erro ao chamar serviço IOT
+
+- Verifique se servidor Python está rodando na porta 8000
+- Confirme `iot.service.url` em `application.properties`
+- Teste endpoint diretamente: `curl http://localhost:8000/health`
+- Verifique logs do servidor Python
+
+### Erro ao gerar recomendações com IA
+
+- Verifique se `GEMINI_API_KEY` está configurada
+- Confirme quota da API Gemini
+- Verifique logs da aplicação para detalhes do erro
+
+### Problemas de cache
+
+- Limpe cache se dados não atualizarem: `POST /actuator/caches`
+- Verifique configuração de cache em `application.properties`
+
 ---
 
-**SkillBridge – conectando talentos, habilidades e oportunidades no futuro da energia.**
+**SkillBridge API – Conectando talentos, habilidades e oportunidades no futuro da energia sustentável.**

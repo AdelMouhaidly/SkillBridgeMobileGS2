@@ -180,6 +180,12 @@ Oracle Database    API IoT (Python) - Porta 8000
 
 Este projeto foi desenvolvido como parte da **Global Solution FIAP**, focando em soluções inovadoras para a transição energética e capacitação profissional. O SkillBridge representa uma abordagem moderna e tecnológica para conectar talentos a oportunidades, utilizando Inteligência Artificial para personalizar a experiência de cada usuário.
 
+## Equipe
+
+- **Afonso Correia Pereira** - RM557863 - 2TDSA
+- **Adel Mouhaidly** - RM557705 - 2TDSA
+- **Tiago Augusto Desiderato** - RM558485 - 2TDSB
+
 ---
 
 ## Como Executar a Aplicação

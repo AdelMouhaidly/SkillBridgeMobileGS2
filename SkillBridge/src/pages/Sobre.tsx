@@ -5,9 +5,13 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Image,
+  Dimensions,
 } from 'react-native';
-import { Info, Code, Calendar, Package, ArrowLeft } from 'lucide-react-native';
+import { Code, Calendar, Package, ArrowLeft } from 'lucide-react-native';
 import { COMMIT_HASH, APP_VERSION, BUILD_DATE } from '../config/buildInfo';
+
+const { width } = Dimensions.get('window');
 
 export default function Sobre({ navigation }: any) {
   return (
@@ -25,7 +29,11 @@ export default function Sobre({ navigation }: any) {
       <View style={styles.content}>
         <View style={styles.logoContainer}>
           <View style={styles.logoCircle}>
-            <Info size={48} color="#2196F3" />
+            <Image
+              source={require('../images/logoSkillBridge.png')}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
           </View>
           <Text style={styles.appName}>SkillBridge</Text>
           <Text style={styles.appTagline}>
@@ -128,22 +136,29 @@ const styles = StyleSheet.create({
     marginVertical: 30,
   },
   logoCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: width * 0.25,
+    height: width * 0.25,
+    borderRadius: width * 0.125,
     backgroundColor: '#E3F2FD',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
+    overflow: 'hidden',
+  },
+  logoImage: {
+    width: width * 0.22,
+    height: width * 0.22,
+    maxWidth: 90,
+    maxHeight: 90,
   },
   appName: {
-    fontSize: 28,
+    fontSize: width * 0.07,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 8,
   },
   appTagline: {
-    fontSize: 16,
+    fontSize: width * 0.04,
     color: '#666',
     textAlign: 'center',
   },

@@ -8,10 +8,13 @@ import {
   RefreshControl,
   ActivityIndicator,
   Image,
+  Dimensions,
 } from 'react-native';
 import { Briefcase, BookOpen, Sparkles, Target, ArrowRight } from 'lucide-react-native';
 import { getUser, getVagas, getCursos, getRecomendacoesBasicas } from '../services/api';
 import { User, RecomendacaoBasica, Curso, Vaga } from '../types';
+
+const { width } = Dimensions.get('window');
 
 export default function Dashboard({ navigation }: any) {
   const [user, setUser] = useState<User | null>(null);
@@ -77,6 +80,13 @@ export default function Dashboard({ navigation }: any) {
       }
     >
       <View style={styles.header}>
+        <View style={styles.headerTop}>
+          <Image
+            source={require('../images/logoSkillBridge.png')}
+            style={styles.headerLogo}
+            resizeMode="contain"
+          />
+        </View>
         <Text style={styles.greeting}>{greeting}!</Text>
         <Text style={styles.name}>{user?.nome || 'Usuário'}</Text>
       </View>
@@ -255,6 +265,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#2196F3',
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
+  },
+  headerTop: {
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  headerLogo: {
+    width: width * 0.2,
+    height: width * 0.2,
+    maxWidth: 80,
+    maxHeight: 80,
   },
   imageContainer: {
     width: '100%',
