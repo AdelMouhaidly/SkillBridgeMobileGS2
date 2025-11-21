@@ -7,9 +7,10 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
-import { Briefcase, CheckCircle, XCircle, Clock, ArrowRight, Percent } from 'lucide-react-native';
-import { getAplicacoes } from '../services/api';
+import { Briefcase, CheckCircle, XCircle, Clock, ArrowRight, Percent, ArrowLeft, Trash2 } from 'lucide-react-native';
+import { getAplicacoes, deletarAplicacao } from '../services/api';
 import { Aplicacao } from '../types';
 
 export default function MinhasAplicacoes({ navigation }: any) {
@@ -37,6 +38,38 @@ export default function MinhasAplicacoes({ navigation }: any) {
     setRefreshing(true);
     await loadAplicacoes();
     setRefreshing(false);
+  };
+
+  const handleCancelarCandidatura = (aplicacao: Aplicacao) => {
+    Alert.alert(
+      'Cancelar Candidatura',
+      `Deseja realmente cancelar sua candidatura para a vaga "${aplicacao.vaga?.titulo || 'esta vaga'}"?`,
+      [
+        {
+          text: 'Não',
+          style: 'cancel',
+        },
+        {
+          text: 'Sim, cancelar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deletarAplicacao(aplicacao.id);
+              Alert.alert('Sucesso', 'Candidatura cancelada com sucesso!');
+              await loadAplicacoes();
+            } catch (error: any) {
+              let errorMsg = 'Erro ao cancelar candidatura';
+              if (error.response?.data?.message) {
+                errorMsg = error.response.data.message;
+              } else if (error.message) {
+                errorMsg = error.message;
+              }
+              Alert.alert('Erro', errorMsg);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const getStatusIcon = (status: string) => {
@@ -87,6 +120,14 @@ export default function MinhasAplicacoes({ navigation }: any) {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
       <View style={styles.header}>
+        <View style={styles.headerTop}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <ArrowLeft size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
         <Text style={styles.title}>Minhas Candidaturas</Text>
         <Text style={styles.subtitle}>{aplicacoes.length} candidatura(s)</Text>
       </View>
@@ -108,57 +149,65 @@ export default function MinhasAplicacoes({ navigation }: any) {
       ) : (
         <View style={styles.content}>
           {aplicacoes.map((aplicacao) => (
-            <TouchableOpacity
-              key={aplicacao.id}
-              style={styles.card}
-              onPress={() => navigation.navigate('AplicacaoDetalhes', { aplicacaoId: aplicacao.id })}
-            >
-              <View style={styles.cardHeader}>
-                <Briefcase size={24} color="#2196F3" />
-                <View style={styles.cardHeaderText}>
-                  <Text style={styles.vagaTitulo}>
-                    {aplicacao.vaga?.titulo || 'Vaga'}
-                  </Text>
-                  <Text style={styles.empresa}>
-                    {aplicacao.vaga?.empresa || 'Empresa'}
-                  </Text>
-                </View>
-              </View>
-
-              <View style={styles.cardInfo}>
-                <View style={styles.statusContainer}>
-                  {getStatusIcon(aplicacao.status)}
-                  <Text
-                    style={[
-                      styles.statusText,
-                      { color: getStatusColor(aplicacao.status) },
-                    ]}
-                  >
-                    {getStatusText(aplicacao.status)}
-                  </Text>
-                </View>
-
-                {aplicacao.pontuacaoCompatibilidade !== undefined && (
-                  <View style={styles.compatibilidadeContainer}>
-                    <Percent size={16} color="#2196F3" />
-                    <Text style={styles.compatibilidadeText}>
-                      {aplicacao.pontuacaoCompatibilidade}% de compatibilidade
+            <View key={aplicacao.id} style={styles.card}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('AplicacaoDetalhes', { aplicacaoId: aplicacao.id })}
+              >
+                <View style={styles.cardHeader}>
+                  <Briefcase size={24} color="#2196F3" />
+                  <View style={styles.cardHeaderText}>
+                    <Text style={styles.vagaTitulo}>
+                      {aplicacao.vaga?.titulo || 'Vaga'}
+                    </Text>
+                    <Text style={styles.empresa}>
+                      {aplicacao.vaga?.empresa || 'Empresa'}
                     </Text>
                   </View>
-                )}
+                </View>
 
-                {aplicacao.dataAplicacao && (
-                  <Text style={styles.dataText}>
-                    Candidatura em {new Date(aplicacao.dataAplicacao).toLocaleDateString('pt-BR')}
-                  </Text>
-                )}
-              </View>
+                <View style={styles.cardInfo}>
+                  <View style={styles.statusContainer}>
+                    {getStatusIcon(aplicacao.status)}
+                    <Text
+                      style={[
+                        styles.statusText,
+                        { color: getStatusColor(aplicacao.status) },
+                      ]}
+                    >
+                      {getStatusText(aplicacao.status)}
+                    </Text>
+                  </View>
 
-              <View style={styles.cardFooter}>
-                <Text style={styles.verDetalhes}>Ver detalhes</Text>
-                <ArrowRight size={16} color="#2196F3" />
-              </View>
-            </TouchableOpacity>
+                  {aplicacao.pontuacaoCompatibilidade !== undefined && (
+                    <View style={styles.compatibilidadeContainer}>
+                      <Percent size={16} color="#2196F3" />
+                      <Text style={styles.compatibilidadeText}>
+                        {aplicacao.pontuacaoCompatibilidade}% de compatibilidade
+                      </Text>
+                    </View>
+                  )}
+
+                  {aplicacao.dataAplicacao && (
+                    <Text style={styles.dataText}>
+                      Candidatura em {new Date(aplicacao.dataAplicacao).toLocaleDateString('pt-BR')}
+                    </Text>
+                  )}
+                </View>
+
+                <View style={styles.cardFooter}>
+                  <Text style={styles.verDetalhes}>Ver detalhes</Text>
+                  <ArrowRight size={16} color="#2196F3" />
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.cancelarButton}
+                onPress={() => handleCancelarCandidatura(aplicacao)}
+              >
+                <Trash2 size={18} color="#f44336" />
+                <Text style={styles.cancelarButtonText}>Cancelar Candidatura</Text>
+              </TouchableOpacity>
+            </View>
           ))}
         </View>
       )}
@@ -187,6 +236,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#2196F3',
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  backButton: {
+    marginRight: 16,
   },
   title: {
     fontSize: 28,
@@ -298,6 +355,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#2196F3',
     fontWeight: '500',
+  },
+  cancelarButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 12,
+    padding: 12,
+    backgroundColor: '#ffebee',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#f44336',
+  },
+  cancelarButtonText: {
+    fontSize: 14,
+    color: '#f44336',
+    fontWeight: '600',
   },
 });
 

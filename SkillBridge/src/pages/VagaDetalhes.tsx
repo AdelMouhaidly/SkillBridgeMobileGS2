@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { Briefcase, MapPin, DollarSign, CheckCircle, ArrowLeft, Tag, FileText, BriefcaseBusiness, Users, List } from 'lucide-react-native';
-import { getVagaById, criarAplicacao, getUser } from '../services/api';
+import { getVagaById, criarAplicacao, getUser, getAplicacoes } from '../services/api';
 import { Vaga, User } from '../types';
 
 export default function VagaDetalhes({ route, navigation }: any) {
@@ -18,6 +18,7 @@ export default function VagaDetalhes({ route, navigation }: any) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [aplicando, setAplicando] = useState(false);
+  const [jaCandidatado, setJaCandidatado] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -31,6 +32,12 @@ export default function VagaDetalhes({ route, navigation }: any) {
       ]);
       setVaga(vagaData);
       setUser(userData);
+      
+      if (userData) {
+        const aplicacoes = await getAplicacoes();
+        const candidatou = aplicacoes.some(app => app.vagaId === vagaId);
+        setJaCandidatado(candidatou);
+      }
     } catch (error: any) {
       console.error('Erro ao carregar vaga:', error);
       Alert.alert('Erro', 'Não foi possível carregar os detalhes da vaga');
@@ -46,6 +53,29 @@ export default function VagaDetalhes({ route, navigation }: any) {
       return;
     }
 
+    if (jaCandidatado) {
+      Alert.alert(
+        'Já Candidatado',
+        'Você já se candidatou para esta vaga. Acesse "Minhas Candidaturas" para acompanhar o status.',
+        [
+          {
+            text: 'Ver Minhas Candidaturas',
+            onPress: () => {
+              navigation.navigate('Main', { screen: 'Perfil' });
+              setTimeout(() => {
+                navigation.navigate('MinhasAplicacoes');
+              }, 100);
+            },
+          },
+          {
+            text: 'OK',
+            style: 'cancel',
+          },
+        ]
+      );
+      return;
+    }
+
     Alert.alert(
       'Confirmar Candidatura',
       `Deseja se candidatar para a vaga "${vaga?.titulo}"?`,
@@ -57,13 +87,23 @@ export default function VagaDetalhes({ route, navigation }: any) {
             setAplicando(true);
             try {
               await criarAplicacao({ vagaId: vagaId });
+              setJaCandidatado(true);
               Alert.alert(
                 'Sucesso',
                 'Candidatura realizada com sucesso!',
                 [
                   {
+                    text: 'Ver Minhas Candidaturas',
+                    onPress: () => {
+                      navigation.navigate('Main', { screen: 'Perfil' });
+                      setTimeout(() => {
+                        navigation.navigate('MinhasAplicacoes');
+                      }, 100);
+                    },
+                  },
+                  {
                     text: 'OK',
-                    onPress: () => navigation.navigate('MinhasAplicacoes'),
+                    style: 'cancel',
                   },
                 ]
               );
@@ -71,6 +111,8 @@ export default function VagaDetalhes({ route, navigation }: any) {
               let errorMsg = 'Erro ao realizar candidatura';
               if (error.response?.data?.message) {
                 errorMsg = error.response.data.message;
+              } else if (error.message) {
+                errorMsg = error.message;
               }
               Alert.alert('Erro', errorMsg);
             } finally {
@@ -200,7 +242,11 @@ export default function VagaDetalhes({ route, navigation }: any) {
 
       <View style={styles.footer}>
         <TouchableOpacity
-          style={[styles.candidatarButton, aplicando && styles.candidatarButtonDisabled]}
+          style={[
+            styles.candidatarButton, 
+            (aplicando || jaCandidatado) && styles.candidatarButtonDisabled,
+            jaCandidatado && styles.candidatarButtonJaCandidatado
+          ]}
           onPress={handleCandidatar}
           disabled={aplicando}
         >
@@ -208,6 +254,11 @@ export default function VagaDetalhes({ route, navigation }: any) {
             <>
               <ActivityIndicator size="small" color="#fff" />
               <Text style={styles.candidatarButtonText}>Candidatando...</Text>
+            </>
+          ) : jaCandidatado ? (
+            <>
+              <CheckCircle size={20} color="#fff" />
+              <Text style={styles.candidatarButtonText}>Já Candidatado</Text>
             </>
           ) : (
             <>
@@ -365,6 +416,9 @@ const styles = StyleSheet.create({
   },
   candidatarButtonDisabled: {
     opacity: 0.6,
+  },
+  candidatarButtonJaCandidatado: {
+    backgroundColor: '#2196F3',
   },
   candidatarButtonText: {
     color: '#fff',

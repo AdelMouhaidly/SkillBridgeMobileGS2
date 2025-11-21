@@ -106,6 +106,7 @@ export interface PlanoEstudosResponse {
 
 export interface Aplicacao {
   id: string;
+  usuarioId?: string;
   vagaId: string;
   vaga?: Vaga;
   status: 'EM_ANALISE' | 'APROVADA' | 'REJEITADA';

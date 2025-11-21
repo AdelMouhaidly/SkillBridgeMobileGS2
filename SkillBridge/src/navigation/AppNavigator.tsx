@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, ActivityIndicator } from 'react-native';
 import { Home, Briefcase, BookOpen, User, Sparkles, Target } from 'lucide-react-native';
 import { isAuthenticated } from '../services/api';
+import authManager from '../services/authManager';
 
 import Login from '../pages/Login';
 import Register from '../pages/Register';
@@ -93,6 +94,17 @@ export default function AppNavigator() {
 
   useEffect(() => {
     checkAuth();
+    
+    // Escuta eventos de logout (quando token expira)
+    const handleLogout = () => {
+      setAuthenticated(false);
+    };
+    
+    const removeListener = authManager.onLogout(handleLogout);
+    
+    return () => {
+      removeListener();
+    };
   }, []);
 
   const checkAuth = async () => {

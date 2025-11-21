@@ -51,8 +51,10 @@ export default function Dashboard({ navigation }: any) {
     try {
       const data = await getRecomendacoesBasicas(usuarioId);
       setRecomendacoes(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao carregar recomendações:', error);
+      // Se for erro de autenticação (401/403) ou 500, o interceptor já vai redirecionar
+      // Apenas não mostra o erro para não poluir a tela
       setRecomendacoes(null);
     } finally {
       setLoadingRecomendacoes(false);

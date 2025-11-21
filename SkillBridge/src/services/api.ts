@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { API_URL } from '../config/api';
+import authManager from './authManager';
 import { 
   LoginData, 
   RegisterData, 
@@ -38,18 +39,15 @@ api.interceptors.request.use(async (config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+    
+    if (status === 401 || status === 403) {
       await AsyncStorage.removeItem('token');
       await AsyncStorage.removeItem('user');
-    } else if (error.response?.status === 403) {
-      console.error('Acesso negado (403). Verificando token...');
-      const token = await AsyncStorage.getItem('token');
-      if (!token) {
-        console.error('Token não encontrado no storage');
-      } else {
-        console.error('Token encontrado, mas acesso negado. Pode ser problema de permissão ou token inválido.');
-      }
+      
+      authManager.logout();
     }
+    
     return Promise.reject(error);
   }
 );
@@ -216,8 +214,21 @@ export const gerarPlanoEstudos = async (data: PlanoEstudosRequest): Promise<Plan
 };
 
 export const getAplicacoes = async (): Promise<Aplicacao[]> => {
-  const response = await api.get('/aplicacoes?page=0&size=50');
-  return response.data.content || response.data || [];
+  const user = await getUser();
+  if (!user) {
+    return [];
+  }
+  
+  const response = await api.get('/aplicacoes?page=0&size=100');
+  const allAplicacoes = response.data.content || response.data || [];
+  
+  return allAplicacoes.filter((aplicacao: Aplicacao) => aplicacao.usuarioId === user.id);
+};
+
+export const getAplicacoesByUsuario = async (usuarioId: string): Promise<Aplicacao[]> => {
+  const response = await api.get('/aplicacoes?page=0&size=100');
+  const allAplicacoes = response.data.content || response.data || [];
+  return allAplicacoes.filter((aplicacao: Aplicacao) => aplicacao.usuarioId === usuarioId);
 };
 
 export const getAplicacaoById = async (id: string): Promise<Aplicacao> => {
@@ -226,11 +237,23 @@ export const getAplicacaoById = async (id: string): Promise<Aplicacao> => {
 };
 
 export const criarAplicacao = async (data: AplicacaoRequest): Promise<Aplicacao> => {
+  const user = await getUser();
+  if (!user) {
+    throw new Error('Usuário não encontrado. Faça login novamente.');
+  }
+
   const response = await api.post('/aplicacoes', {
+    usuarioId: user.id,
     vagaId: data.vagaId,
-    compatibilidade: data.compatibilidade,
+    status: 'EM_ANALISE',
+    pontuacaoCompatibilidade: data.compatibilidade ? data.compatibilidade : null,
+    comentariosAvaliador: null,
   });
   return response.data;
+};
+
+export const deletarAplicacao = async (aplicacaoId: string): Promise<void> => {
+  await api.delete(`/aplicacoes/${aplicacaoId}`);
 };
 
 export default api;

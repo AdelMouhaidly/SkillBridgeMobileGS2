@@ -1,8 +1,12 @@
 # SkillBridge - Plataforma de Capacitação Profissional
 
+![Logo SkillBridge](SkillBridge/src/images/logoSkillBridge.png)
+
 ## Introdução
 
 O **SkillBridge** é uma plataforma inovadora de capacitação profissional voltada à transição energética e requalificação de talentos. A aplicação conecta profissionais a oportunidades de cursos e vagas sustentáveis, utilizando Inteligência Artificial Generativa para fornecer recomendações personalizadas e planos de estudos adaptados ao perfil de cada usuário.
+
+![SkillBridge - Plataforma de Capacitação Profissional](SkillBridge/src/images/ImagemREADME.jpg)
 
 ## Problemas que Motivaram a Criação
 
@@ -97,6 +101,8 @@ O SkillBridge oferece uma solução completa e integrada que resolve esses probl
 ```
 
 ## Funcionalidades Principais
+
+![SkillBridge - Funcionalidades](SkillBridge/src/images/ImagemREADME2.png)
 
 ### Para Usuários
 
@@ -297,7 +303,7 @@ Oracle Database    API IoT (Python) - Porta 8000
 
 Este projeto foi desenvolvido como parte da **Global Solution FIAP**, focando em soluções inovadoras para a transição energética e capacitação profissional. O SkillBridge representa uma abordagem moderna e tecnológica para conectar talentos a oportunidades, utilizando Inteligência Artificial para personalizar a experiência de cada usuário.
 
-## Equipe
+## Equipe / Integrantes do Projeto
 
 - **Afonso Correia Pereira** - RM557863 - 2TDSA
 - **Adel Mouhaidly** - RM557705 - 2TDSA
@@ -473,6 +479,17 @@ mvn test
 - **Módulo IoT**: `IOT/README.md`
 - **Aplicativo Mobile**: `SkillBridge/README.md`
 - **Coleção Postman**: `postman/SkillBridge.postman_collection.json`
+
+## Vídeos
+
+### Vídeo Java
+
+- [Pitch Java]()
+- [Demonstração da API Java](https://www.youtube.com/watch?v=JMNiMZoDzjs)
+
+### Vídeo Mobile / IOT
+
+- [Demonstração do App/IOT](https://youtu.be/8U-LO-4KL-E)
 
 ---
 
