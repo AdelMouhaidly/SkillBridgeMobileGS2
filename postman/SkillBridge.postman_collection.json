@@ -3,11 +3,11 @@
     "_postman_id": "a6d2e7da-25c3-4c91-ae28-7f82ac73fd11",
     "name": "SkillBridge API - Collection Completa",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "Coleção completa de testes para a SkillBridge API. Organizada por categorias. Configure as variáveis {{base_url}}, {{auth_token}}, {{usuarioId}}, {{vagaId}}, {{cursoId}} e {{aplicacaoId}} antes de executar."
+    "description": "Coleção completa de testes para a SkillBridge API. Organizada por categorias. Configure as variáveis {{base_url}}, {{auth_token}}, {{usuarioId}}, {{vagaId}}, {{cursoId}} e {{aplicacaoId}} antes de executar.\n\nIMPORTANTE - CRIAR USUÁRIO ADMIN:\nPara testar endpoints administrativos (POST/PUT/DELETE de vagas, cursos, usuários), você precisa de um usuário com role ADMIN.\n\nExecute no banco Oracle:\nUPDATE usuario SET role = 'ADMIN' WHERE email = 'seu-email@exemplo.com';\n\nDepois faça login com esse usuário e use o token gerado nos endpoints administrativos."
   },
   "item": [
     {
-      "name": "🔐 Autenticação",
+      "name": "Autenticação",
       "item": [
         {
           "name": "Registrar usuário (PKG_USUARIOS)",
@@ -58,8 +58,40 @@
       ]
     },
     {
-      "name": "👥 Usuários",
+      "name": "Usuários",
       "item": [
+        {
+          "name": "Alterar Role (Promover/Rebaixar)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "\"ADMIN\"",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/usuarios/{{usuarioId}}/role",
+              "host": ["{{base_url}}"],
+              "path": ["usuarios", "{{usuarioId}}", "role"]
+            },
+            "description": "REQUER ROLE ADMIN\nAltera apenas o role do usuário, mantendo todos os outros dados intactos. Use o ID do usuário em {{usuarioId}}.\n\nValores aceitos no body:\n- \"ADMIN\" - para promover a administrador\n- \"USER\" - para rebaixar a usuário comum\n\nExemplo para promover: \"ADMIN\"\nExemplo para rebaixar: \"USER\""
+          },
+          "response": []
+        },
         {
           "name": "Listar (paginação)",
           "request": {
@@ -75,8 +107,8 @@
               "host": ["{{base_url}}"],
               "path": ["usuarios"],
               "query": [
-                {"key": "page", "value": "0"},
-                {"key": "size", "value": "10"}
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
               ]
             },
             "description": "Lista usuários com paginação. Use o ID retornado em {{usuarioId}}."
@@ -125,7 +157,7 @@
               "host": ["{{base_url}}"],
               "path": ["usuarios"]
             },
-            "description": "Cria um novo usuário via JPA."
+            "description": "REQUER ROLE ADMIN\nCria um novo usuário via JPA. Apenas usuários com role ADMIN podem criar outros usuários. Use /auth/register para criar usuários normais."
           },
           "response": []
         },
@@ -145,14 +177,19 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nome\": \"Usuário Atualizado\",\n  \"email\": \"usuario.atualizado@skillbridge.com\",\n  \"telefone\": \"11988888888\",\n  \"cidade\": \"Rio de Janeiro\",\n  \"uf\": \"RJ\",\n  \"objetivoCarreira\": \"Novo objetivo\",\n  \"competencias\": [\"Java\", \"Spring Boot\", \"Kubernetes\"]\n}"
+              "raw": "{\n  \"nome\": \"Usuário Atualizado\",\n  \"email\": \"usuario.atualizado@skillbridge.com\",\n  \"telefone\": \"11988888888\",\n  \"cidade\": \"Rio de Janeiro\",\n  \"uf\": \"RJ\",\n  \"objetivoCarreira\": \"Novo objetivo\",\n  \"competencias\": [\"Java\", \"Spring Boot\", \"Kubernetes\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{base_url}}/usuarios/{{usuarioId}}",
               "host": ["{{base_url}}"],
               "path": ["usuarios", "{{usuarioId}}"]
             },
-            "description": "Atualiza um usuário existente."
+            "description": "Atualiza um usuário existente de forma parcial. O usuário pode editar sua própria conta ou ADMIN pode editar qualquer conta.\n\nIMPORTANTE: Este endpoint faz UPDATE PARCIAL - apenas os campos enviados serão atualizados, os demais permanecem inalterados.\n\nExemplo: Para atualizar apenas o telefone, envie apenas:\n{\n  \"telefone\": \"11999999999\"\n}\n\nPara atualizar nome e email:\n{\n  \"nome\": \"Novo Nome\",\n  \"email\": \"novo@email.com\"\n}\n\nPara promover a ADMIN (apenas ADMIN pode fazer), use o endpoint PUT /usuarios/{id}/role"
           },
           "response": []
         },
@@ -171,7 +208,7 @@
               "host": ["{{base_url}}"],
               "path": ["usuarios", "{{usuarioId}}"]
             },
-            "description": "Exclui um usuário."
+            "description": "Exclui um usuário. O usuário pode excluir sua própria conta ou ADMIN pode excluir qualquer conta."
           },
           "response": []
         }
@@ -195,8 +232,8 @@
               "host": ["{{base_url}}"],
               "path": ["vagas"],
               "query": [
-                {"key": "page", "value": "0"},
-                {"key": "size", "value": "10"}
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
               ]
             },
             "description": "Lista vagas com paginação. Use o ID retornado em {{vagaId}}."
@@ -245,7 +282,7 @@
               "host": ["{{base_url}}"],
               "path": ["vagas"]
             },
-            "description": "Cria uma nova vaga. Use o ID retornado em {{vagaId}}."
+            "description": "REQUER ROLE ADMIN\nCria uma nova vaga. Apenas usuários com role ADMIN podem criar vagas. Use o ID retornado em {{vagaId}}."
           },
           "response": []
         },
@@ -272,7 +309,7 @@
               "host": ["{{base_url}}"],
               "path": ["vagas", "{{vagaId}}"]
             },
-            "description": "Atualiza uma vaga existente."
+            "description": "REQUER ROLE ADMIN\nAtualiza uma vaga existente. Apenas usuários com role ADMIN podem atualizar vagas."
           },
           "response": []
         },
@@ -291,7 +328,7 @@
               "host": ["{{base_url}}"],
               "path": ["vagas", "{{vagaId}}"]
             },
-            "description": "Exclui uma vaga."
+            "description": "REQUER ROLE ADMIN\nExclui uma vaga. Apenas usuários com role ADMIN podem excluir vagas."
           },
           "response": []
         }
@@ -315,8 +352,8 @@
               "host": ["{{base_url}}"],
               "path": ["cursos"],
               "query": [
-                {"key": "page", "value": "0"},
-                {"key": "size", "value": "10"}
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
               ]
             },
             "description": "Lista cursos com paginação. Use o ID retornado em {{cursoId}}."
@@ -365,7 +402,7 @@
               "host": ["{{base_url}}"],
               "path": ["cursos"]
             },
-            "description": "Cria um novo curso."
+            "description": "REQUER ROLE ADMIN\nCria um novo curso. Apenas usuários com role ADMIN podem criar cursos."
           },
           "response": []
         },
@@ -392,7 +429,7 @@
               "host": ["{{base_url}}"],
               "path": ["cursos", "{{cursoId}}"]
             },
-            "description": "Atualiza um curso existente."
+            "description": "REQUER ROLE ADMIN\nAtualiza um curso existente. Apenas usuários com role ADMIN podem atualizar cursos."
           },
           "response": []
         },
@@ -411,7 +448,7 @@
               "host": ["{{base_url}}"],
               "path": ["cursos", "{{cursoId}}"]
             },
-            "description": "Exclui um curso."
+            "description": "REQUER ROLE ADMIN\nExclui um curso. Apenas usuários com role ADMIN podem excluir cursos."
           },
           "response": []
         }
@@ -435,8 +472,8 @@
               "host": ["{{base_url}}"],
               "path": ["aplicacoes"],
               "query": [
-                {"key": "page", "value": "0"},
-                {"key": "size", "value": "10"}
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
               ]
             },
             "description": "Lista aplicações com paginação. Valida que aplicações criadas via procedure são listadas via JPA."
@@ -512,7 +549,7 @@
               "host": ["{{base_url}}"],
               "path": ["aplicacoes", "{{aplicacaoId}}"]
             },
-            "description": "Atualiza uma aplicação existente."
+            "description": "REQUER ROLE ADMIN\nAtualiza uma aplicação existente. Apenas usuários com role ADMIN podem atualizar aplicações (para mudar status, etc)."
           },
           "response": []
         },
@@ -531,7 +568,7 @@
               "host": ["{{base_url}}"],
               "path": ["aplicacoes", "{{aplicacaoId}}"]
             },
-            "description": "Exclui uma aplicação."
+            "description": "REQUER ROLE ADMIN\nExclui uma aplicação. Apenas usuários com role ADMIN podem excluir aplicações."
           },
           "response": []
         }
