@@ -20,40 +20,95 @@ export default function Login({ navigation, onLogin }: any) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const [senhaError, setSenhaError] = useState('');
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const handleLogin = async () => {
-    if (!email || !senha) {
-      Alert.alert('Erro', 'Preencha todos os campos');
+    setEmailError('');
+    setSenhaError('');
+
+    if (!email.trim()) {
+      setEmailError('Email é obrigatório');
+      Alert.alert('Erro', 'Preencha o campo de email');
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setEmailError('Email inválido');
+      Alert.alert('Erro', 'Digite um email válido');
+      return;
+    }
+
+    if (!senha) {
+      setSenhaError('Senha é obrigatória');
+      Alert.alert('Erro', 'Preencha o campo de senha');
+      return;
+    }
+
+    if (senha.length < 6) {
+      setSenhaError('Senha deve ter pelo menos 6 caracteres');
+      Alert.alert('Erro', 'A senha deve ter pelo menos 6 caracteres');
       return;
     }
 
     setLoading(true);
     try {
-      await login({ email, senha });
+      await login({ email: email.trim().toLowerCase(), senha });
       onLogin();
     } catch (error: any) {
       let errorMsg = 'Erro ao fazer login';
+      let errorTitle = 'Erro';
       
-      if (error.message) {
-        errorMsg = error.message;
-      } else if (error.response) {
-        if (error.response.status === 401) {
-          errorMsg = 'Email ou senha incorretos';
-        } else if (error.response.status === 400) {
-          errorMsg = error.response.data?.message || 'Dados inválidos';
-        } else if (error.response.data?.message) {
-          errorMsg = error.response.data.message;
+      if (error.response) {
+        const status = error.response.status;
+        const data = error.response.data;
+        
+        if (status === 401) {
+          errorTitle = 'Credenciais Inválidas';
+          errorMsg = 'Email ou senha incorretos. Verifique suas credenciais e tente novamente.';
+          setEmailError('Email ou senha incorretos');
+          setSenhaError('Email ou senha incorretos');
+        } else if (status === 404) {
+          errorTitle = 'Usuário Não Encontrado';
+          errorMsg = 'Nenhuma conta encontrada com este email. Verifique o email ou cadastre-se.';
+          setEmailError('Email não cadastrado');
+        } else if (status === 400) {
+          errorTitle = 'Dados Inválidos';
+          errorMsg = data?.message || 'Verifique os dados informados e tente novamente.';
+          if (data?.message?.toLowerCase().includes('email')) {
+            setEmailError('Email inválido');
+          }
+          if (data?.message?.toLowerCase().includes('senha')) {
+            setSenhaError('Senha inválida');
+          }
+        } else if (status === 500) {
+          errorTitle = 'Erro no Servidor';
+          errorMsg = 'Ocorreu um erro no servidor. Tente novamente em alguns instantes.';
+        } else if (status === 403) {
+          errorTitle = 'Acesso Negado';
+          errorMsg = 'Você não tem permissão para acessar. Entre em contato com o suporte.';
+        } else if (data?.message) {
+          errorMsg = data.message;
         } else {
-          errorMsg = `Erro do servidor (${error.response.status})`;
+          errorMsg = `Erro do servidor (${status})`;
         }
       } else if (error.request) {
-        errorMsg = 'Não foi possível conectar ao servidor.\n\nVerifique:\n• Se a API está rodando na porta 8080\n• Se a URL está correta no arquivo config/api.ts\n• Se está usando o IP correto para dispositivo físico';
-      } else {
-        errorMsg = error.message || 'Erro desconhecido';
+        errorTitle = 'Sem Conexão';
+        errorMsg = 'Não foi possível conectar ao servidor.\n\nVerifique:\n• Sua conexão com a internet\n• Se a API está rodando\n• Se a URL está correta';
+      } else if (error.message) {
+        errorMsg = error.message;
+        if (error.message.includes('conectar') || error.message.includes('Network')) {
+          errorTitle = 'Sem Conexão';
+        }
       }
       
       console.error('Erro completo:', error);
-      Alert.alert('Erro', errorMsg);
+      Alert.alert(errorTitle, errorMsg);
     } finally {
       setLoading(false);
     }
@@ -73,27 +128,40 @@ export default function Login({ navigation, onLogin }: any) {
           />
         </View>
 
-        <View style={styles.inputContainer}>
-          <Mail size={20} color="#666" style={styles.icon} />
-          <TextInput
-            style={styles.input}
-            placeholder="E-mail"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
+        <View style={styles.inputGroup}>
+          <View style={[styles.inputContainer, emailError ? styles.inputError : null]}>
+            <Mail size={20} color={emailError ? "#f44336" : "#666"} style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="E-mail"
+              value={email}
+              onChangeText={(text) => {
+                setEmail(text);
+                if (emailError) setEmailError('');
+              }}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </View>
+          {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
         </View>
 
-        <View style={styles.inputContainer}>
-          <Lock size={20} color="#666" style={styles.icon} />
-          <TextInput
-            style={styles.input}
-            placeholder="Senha"
-            value={senha}
-            onChangeText={setSenha}
-            secureTextEntry
-          />
+        <View style={styles.inputGroup}>
+          <View style={[styles.inputContainer, senhaError ? styles.inputError : null]}>
+            <Lock size={20} color={senhaError ? "#f44336" : "#666"} style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Senha"
+              value={senha}
+              onChangeText={(text) => {
+                setSenha(text);
+                if (senhaError) setSenhaError('');
+              }}
+              secureTextEntry
+            />
+          </View>
+          {senhaError ? <Text style={styles.errorText}>{senhaError}</Text> : null}
         </View>
 
         <TouchableOpacity 
@@ -139,15 +207,28 @@ const styles = StyleSheet.create({
     maxWidth: 200,
     maxHeight: 200,
   },
+  inputGroup: {
+    marginBottom: 5,
+  },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f5f5f5',
     borderRadius: 10,
-    marginBottom: 15,
+    marginBottom: 5,
     paddingHorizontal: 15,
     borderWidth: 1,
     borderColor: '#e0e0e0',
+  },
+  inputError: {
+    borderColor: '#f44336',
+    backgroundColor: '#ffebee',
+  },
+  errorText: {
+    color: '#f44336',
+    fontSize: 12,
+    marginLeft: 15,
+    marginBottom: 10,
   },
   icon: {
     marginRight: 10,

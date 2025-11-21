@@ -38,6 +38,7 @@ export default function Register({ navigation, onRegister }: any) {
   const [competencias, setCompetencias] = useState<string[]>([]);
   const [competenciaInput, setCompetenciaInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<{[key: string]: string}>({});
 
   const addCompetencia = () => {
     if (
@@ -53,56 +54,136 @@ export default function Register({ navigation, onRegister }: any) {
     setCompetencias(competencias.filter((c) => c !== comp));
   };
 
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePhone = (phone: string): boolean => {
+    if (!phone) return true;
+    const phoneRegex = /^[\d\s\(\)\-\+]+$/;
+    return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 10;
+  };
+
+  const validateUF = (uf: string): boolean => {
+    if (!uf) return true;
+    return uf.length === 2 && /^[A-Z]{2}$/.test(uf);
+  };
+
   const handleRegister = async () => {
-    if (!nome || !email || !senha) {
-      Alert.alert("Erro", "Preencha nome, email e senha");
-      return;
+    const newErrors: {[key: string]: string} = {};
+    let hasError = false;
+
+    if (!nome.trim()) {
+      newErrors.nome = "Nome é obrigatório";
+      hasError = true;
+    } else if (nome.trim().length < 3) {
+      newErrors.nome = "Nome deve ter pelo menos 3 caracteres";
+      hasError = true;
     }
 
-    if (senha.length < 6) {
-      Alert.alert("Erro", "A senha deve ter pelo menos 6 caracteres");
+    if (!email.trim()) {
+      newErrors.email = "Email é obrigatório";
+      hasError = true;
+    } else if (!validateEmail(email)) {
+      newErrors.email = "Email inválido";
+      hasError = true;
+    }
+
+    if (!senha) {
+      newErrors.senha = "Senha é obrigatória";
+      hasError = true;
+    } else if (senha.length < 6) {
+      newErrors.senha = "A senha deve ter pelo menos 6 caracteres";
+      hasError = true;
+    } else if (senha.length > 50) {
+      newErrors.senha = "A senha deve ter no máximo 50 caracteres";
+      hasError = true;
+    }
+
+    if (telefone && !validatePhone(telefone)) {
+      newErrors.telefone = "Telefone inválido";
+      hasError = true;
+    }
+
+    if (uf && !validateUF(uf)) {
+      newErrors.uf = "UF deve ter 2 letras maiúsculas";
+      hasError = true;
+    }
+
+    setErrors(newErrors);
+
+    if (hasError) {
+      const firstError = Object.values(newErrors)[0];
+      Alert.alert("Erro de Validação", firstError);
       return;
     }
 
     setLoading(true);
     try {
       await register({
-        nome,
-        email,
+        nome: nome.trim(),
+        email: email.trim().toLowerCase(),
         senha,
-        telefone: telefone || undefined,
-        cidade: cidade || undefined,
-        uf: uf || undefined,
-        objetivoCarreira: objetivoCarreira || undefined,
+        telefone: telefone.trim() || undefined,
+        cidade: cidade.trim() || undefined,
+        uf: uf.trim().toUpperCase() || undefined,
+        objetivoCarreira: objetivoCarreira.trim() || undefined,
         competencias: competencias.length > 0 ? competencias : undefined,
       });
-      onRegister();
+      Alert.alert("Sucesso", "Conta criada com sucesso!", [
+        { text: "OK", onPress: () => onRegister() }
+      ]);
     } catch (error: any) {
       let errorMsg = "Erro ao cadastrar";
+      let errorTitle = "Erro";
+      const newErrors: {[key: string]: string} = {};
 
-      if (error.message) {
-        errorMsg = error.message;
-      } else if (error.response) {
-        if (error.response.status === 400) {
-          errorMsg =
-            error.response.data?.message ||
-            "Dados inválidos. Verifique se todos os campos estão corretos.";
-        } else if (error.response.status === 409) {
-          errorMsg = "Este email já está cadastrado";
-        } else if (error.response.data?.message) {
-          errorMsg = error.response.data.message;
+      if (error.response) {
+        const status = error.response.status;
+        const data = error.response.data;
+        
+        if (status === 409 || (data?.message && data.message.toLowerCase().includes('já existe'))) {
+          errorTitle = "Email Já Cadastrado";
+          errorMsg = "Este email já está cadastrado. Tente fazer login ou use outro email.";
+          newErrors.email = "Email já cadastrado";
+        } else if (status === 400) {
+          errorTitle = "Dados Inválidos";
+          errorMsg = data?.message || "Verifique os dados informados e tente novamente.";
+          
+          if (data?.message) {
+            const message = data.message.toLowerCase();
+            if (message.includes('email')) {
+              newErrors.email = "Email inválido ou já cadastrado";
+            }
+            if (message.includes('senha')) {
+              newErrors.senha = "Senha inválida";
+            }
+            if (message.includes('nome')) {
+              newErrors.nome = "Nome inválido";
+            }
+          }
+        } else if (status === 500) {
+          errorTitle = "Erro no Servidor";
+          errorMsg = "Ocorreu um erro no servidor. Tente novamente em alguns instantes.";
+        } else if (data?.message) {
+          errorMsg = data.message;
         } else {
-          errorMsg = `Erro do servidor (${error.response.status})`;
+          errorMsg = `Erro do servidor (${status})`;
         }
       } else if (error.request) {
-        errorMsg =
-          "Não foi possível conectar ao servidor.\n\nVerifique:\n• Se a API está rodando na porta 8080\n• Se a URL está correta no arquivo config/api.ts\n• Se está usando o IP correto para dispositivo físico";
-      } else {
-        errorMsg = error.message || "Erro desconhecido";
+        errorTitle = "Sem Conexão";
+        errorMsg = "Não foi possível conectar ao servidor.\n\nVerifique:\n• Sua conexão com a internet\n• Se a API está rodando\n• Se a URL está correta";
+      } else if (error.message) {
+        errorMsg = error.message;
+        if (error.message.includes('conectar') || error.message.includes('Network')) {
+          errorTitle = "Sem Conexão";
+        }
       }
 
+      setErrors(newErrors);
       console.error("Erro completo:", error);
-      Alert.alert("Erro", errorMsg);
+      Alert.alert(errorTitle, errorMsg);
     } finally {
       setLoading(false);
     }
@@ -132,50 +213,89 @@ export default function Register({ navigation, onRegister }: any) {
         <Text style={styles.title}>Criar Conta</Text>
         <Text style={styles.subtitle}>Preencha os dados abaixo</Text>
 
-        <View style={styles.inputContainer}>
-          <User size={20} color="#666" style={styles.icon} />
-          <TextInput
-            style={styles.input}
-            placeholder="Nome completo *"
-            value={nome}
-            onChangeText={setNome}
-          />
+        <View style={styles.inputGroup}>
+          <View style={[styles.inputContainer, errors.nome ? styles.inputError : null]}>
+            <User size={20} color={errors.nome ? "#f44336" : "#666"} style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Nome completo *"
+              value={nome}
+              onChangeText={(text) => {
+                setNome(text);
+                if (errors.nome) {
+                  const newErrors = {...errors};
+                  delete newErrors.nome;
+                  setErrors(newErrors);
+                }
+              }}
+            />
+          </View>
+          {errors.nome ? <Text style={styles.errorText}>{errors.nome}</Text> : null}
         </View>
 
-        <View style={styles.inputContainer}>
-          <Mail size={20} color="#666" style={styles.icon} />
-          <TextInput
-            style={styles.input}
-            placeholder="E-mail *"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
+        <View style={styles.inputGroup}>
+          <View style={[styles.inputContainer, errors.email ? styles.inputError : null]}>
+            <Mail size={20} color={errors.email ? "#f44336" : "#666"} style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="E-mail *"
+              value={email}
+              onChangeText={(text) => {
+                setEmail(text);
+                if (errors.email) {
+                  const newErrors = {...errors};
+                  delete newErrors.email;
+                  setErrors(newErrors);
+                }
+              }}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </View>
+          {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
         </View>
 
-        <View style={styles.inputContainer}>
-          <Lock size={20} color="#666" style={styles.icon} />
-          <TextInput
-            style={styles.input}
-            placeholder="Senha *"
-            value={senha}
-            onChangeText={setSenha}
-            secureTextEntry
-          />
+        <View style={styles.inputGroup}>
+          <View style={[styles.inputContainer, errors.senha ? styles.inputError : null]}>
+            <Lock size={20} color={errors.senha ? "#f44336" : "#666"} style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Senha *"
+              value={senha}
+              onChangeText={(text) => {
+                setSenha(text);
+                if (errors.senha) {
+                  const newErrors = {...errors};
+                  delete newErrors.senha;
+                  setErrors(newErrors);
+                }
+              }}
+              secureTextEntry
+            />
+          </View>
+          {errors.senha ? <Text style={styles.errorText}>{errors.senha}</Text> : null}
         </View>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Telefone (opcional)</Text>
-          <View style={styles.inputContainer}>
+          <View style={[styles.inputContainer, errors.telefone ? styles.inputError : null]}>
             <TextInput
               style={styles.input}
               placeholder="(11) 98888-7777"
               value={telefone}
-              onChangeText={setTelefone}
+              onChangeText={(text) => {
+                setTelefone(text);
+                if (errors.telefone) {
+                  const newErrors = {...errors};
+                  delete newErrors.telefone;
+                  setErrors(newErrors);
+                }
+              }}
               keyboardType="phone-pad"
             />
           </View>
+          {errors.telefone ? <Text style={styles.errorText}>{errors.telefone}</Text> : null}
         </View>
 
         <View style={styles.row}>
@@ -189,16 +309,24 @@ export default function Register({ navigation, onRegister }: any) {
             />
           </View>
 
-          <View style={[styles.inputContainer, styles.inputUf]}>
+          <View style={[styles.inputContainer, styles.inputUf, errors.uf ? styles.inputError : null]}>
             <TextInput
               style={styles.input}
               placeholder="UF"
               value={uf}
-              onChangeText={(text) => setUf(text.toUpperCase())}
+              onChangeText={(text) => {
+                setUf(text.toUpperCase());
+                if (errors.uf) {
+                  const newErrors = {...errors};
+                  delete newErrors.uf;
+                  setErrors(newErrors);
+                }
+              }}
               maxLength={2}
             />
           </View>
         </View>
+        {errors.uf ? <Text style={styles.errorText}>{errors.uf}</Text> : null}
 
         <View style={styles.inputContainer}>
           <Target size={20} color="#666" style={styles.icon} />
@@ -318,6 +446,17 @@ const styles = StyleSheet.create({
   },
   inputGroup: {
     marginBottom: 15,
+  },
+  inputError: {
+    borderColor: '#f44336',
+    backgroundColor: '#ffebee',
+  },
+  errorText: {
+    color: '#f44336',
+    fontSize: 12,
+    marginLeft: 15,
+    marginTop: -10,
+    marginBottom: 5,
   },
   tagInputContainer: {
     flexDirection: "row",
