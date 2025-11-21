@@ -195,6 +195,62 @@ O aplicativo utiliza autenticação baseada em JWT:
 - Redirecionamento para login quando token expira ou é inválido
 - Verificação de autenticação ao iniciar o app
 
+## Gestão do Aplicativo
+
+O SkillBridge Mobile permite que usuários comuns gerenciem completamente suas próprias informações através da interface do aplicativo.
+
+### Gestão de Perfil do Usuário
+
+Na tela **Perfil**, os usuários podem:
+
+#### Visualizar Informações
+
+- Nome completo
+- Email
+- Telefone (se cadastrado)
+- Cidade e UF (se cadastrado)
+- Objetivo de carreira (se cadastrado)
+- Lista completa de competências
+
+#### Editar Perfil
+
+Através do botão "Editar Perfil", o usuário pode modificar:
+
+- **Nome**: Nome completo
+- **Telefone**: Número de telefone
+- **Cidade**: Cidade de residência
+- **UF**: Estado (sigla de 2 letras)
+- **Objetivo de Carreira**: Objetivo profissional
+- **Competências**: Adicionar ou remover competências
+
+**Nota**: O email não pode ser alterado através do aplicativo. Para alterar o email, é necessário contatar um administrador ou usar a API diretamente.
+
+#### Excluir Conta
+
+O usuário pode excluir sua própria conta através do botão "Excluir Conta" na tela de perfil. Esta ação é irreversível e remove todos os dados do usuário do sistema.
+
+#### Visualizar Candidaturas
+
+Na tela de perfil, o usuário pode visualizar todas as suas candidaturas a vagas, incluindo:
+
+- Vaga para a qual se candidatou
+- Data da candidatura
+- Status da candidatura
+
+### Limitações do Usuário Comum
+
+Usuários comuns (role USER) não podem:
+
+- Criar, editar ou excluir vagas
+- Criar, editar ou excluir cursos
+- Gerenciar outros usuários
+- Alterar permissões (roles) de outros usuários
+- Acessar funcionalidades administrativas
+
+### Gestão Administrativa
+
+Funcionalidades administrativas (criar/editar vagas, cursos, gerenciar usuários) estão disponíveis apenas através da API REST, utilizando ferramentas como Swagger UI ou Postman. Consulte `../api/README.md` para mais informações sobre gestão administrativa.
+
 ## Como Executar
 
 ### Pré-requisitos

@@ -116,6 +116,123 @@ O SkillBridge oferece uma solução completa e integrada que resolve esses probl
 - **Auditoria e Logs** de operações
 - **API REST completa** com documentação Swagger
 
+## Gestão do Aplicativo
+
+O SkillBridge possui dois níveis de acesso e gestão: **Usuário Comum** e **Administrador**. Cada nível tem permissões e funcionalidades específicas.
+
+### Gestão para Usuários Comuns (Aplicativo Mobile)
+
+Os usuários comuns gerenciam suas informações através do aplicativo mobile React Native:
+
+#### Funcionalidades Disponíveis
+
+- **Gerenciar Próprio Perfil**: Editar nome, telefone, cidade, UF, objetivo de carreira e competências
+- **Visualizar Dados**: Acessar todas as informações do próprio perfil
+- **Excluir Própria Conta**: Remover a própria conta do sistema
+- **Candidatar-se a Vagas**: Criar candidaturas para vagas disponíveis
+- **Visualizar Candidaturas**: Acompanhar status das próprias candidaturas
+- **Gerar Recomendações**: Solicitar recomendações personalizadas de cursos e vagas
+- **Gerar Planos de Estudos**: Criar planos de estudos personalizados com IA
+
+#### Limitações
+
+- Não podem criar, editar ou excluir vagas
+- Não podem criar, editar ou excluir cursos
+- Não podem gerenciar outros usuários
+- Não podem alterar o role (permissão) de outros usuários
+
+### Gestão para Administradores (API REST)
+
+Os administradores gerenciam todo o conteúdo da plataforma através da API REST, utilizando ferramentas como Swagger UI ou Postman:
+
+#### Funcionalidades Disponíveis
+
+- **Gerenciamento Completo de Vagas**: Criar, editar, listar e excluir vagas
+- **Gerenciamento Completo de Cursos**: Criar, editar, listar e excluir cursos
+- **Gerenciamento de Usuários**: Criar novos usuários, editar qualquer usuário, listar usuários e excluir usuários
+- **Alterar Roles**: Promover ou rebaixar usuários entre USER e ADMIN
+- **Gerenciar Aplicações**: Atualizar status de candidaturas e excluir aplicações
+- **Acesso Total**: Todas as funcionalidades de usuário comum, além das administrativas
+
+#### Como Criar um Usuário Administrador
+
+**Opção 1: Via Banco de Dados (Recomendado para primeiro admin)**
+
+Execute no Oracle Database:
+
+```sql
+UPDATE usuario
+SET role = 'ADMIN'
+WHERE email = 'email-do-usuario@exemplo.com';
+```
+
+**Opção 2: Via API (Requer um admin existente)**
+
+1. Faça login como um usuário ADMIN
+2. Use o endpoint `PUT /usuarios/{id}/role` com body: `"ADMIN"`
+3. Ou use `PUT /usuarios/{id}` incluindo `"role": "ADMIN"` no body
+
+#### Endpoints Administrativos
+
+Todos os endpoints abaixo requerem autenticação com token JWT de um usuário ADMIN:
+
+- `POST /usuarios` - Criar novo usuário
+- `PUT /usuarios/{id}` - Atualizar qualquer usuário
+- `DELETE /usuarios/{id}` - Excluir qualquer usuário
+- `PUT /usuarios/{id}/role` - Alterar role de usuário
+- `POST /vagas` - Criar nova vaga
+- `PUT /vagas/{id}` - Atualizar vaga
+- `DELETE /vagas/{id}` - Excluir vaga
+- `POST /cursos` - Criar novo curso
+- `PUT /cursos/{id}` - Atualizar curso
+- `DELETE /cursos/{id}` - Excluir curso
+- `PUT /aplicacoes/{id}` - Atualizar aplicação
+- `DELETE /aplicacoes/{id}` - Excluir aplicação
+
+#### Endpoints Públicos (Não Requerem ADMIN)
+
+- `GET /usuarios` - Listar usuários (qualquer usuário autenticado)
+- `GET /usuarios/{id}` - Buscar usuário (qualquer usuário autenticado)
+- `PUT /usuarios/{id}` - Editar própria conta (usuário pode editar seus próprios dados)
+- `DELETE /usuarios/{id}` - Excluir própria conta (usuário pode excluir sua própria conta)
+- `GET /vagas` - Listar vagas (qualquer usuário autenticado)
+- `GET /vagas/{id}` - Buscar vaga (qualquer usuário autenticado)
+- `GET /cursos` - Listar cursos (qualquer usuário autenticado)
+- `GET /cursos/{id}` - Buscar curso (qualquer usuário autenticado)
+- `POST /aplicacoes` - Criar candidatura (qualquer usuário autenticado)
+- `GET /aplicacoes` - Listar aplicações (qualquer usuário autenticado)
+- `GET /aplicacoes/{id}` - Buscar aplicação (qualquer usuário autenticado)
+
+### Sistema de Permissões
+
+O sistema utiliza Spring Security com controle de acesso baseado em roles:
+
+- **Role USER**: Usuário comum com acesso às funcionalidades básicas
+- **Role ADMIN**: Administrador com acesso total ao sistema
+
+A autorização é verificada através de anotações `@PreAuthorize("hasRole('ADMIN')")` nos endpoints administrativos e validação manual no código para permitir que usuários gerenciem suas próprias contas.
+
+### Fluxo de Gestão Típico
+
+**Para Usuário Comum:**
+
+1. Cadastra-se via aplicativo mobile
+2. Completa perfil com competências e objetivos
+3. Explora vagas e cursos disponíveis
+4. Recebe recomendações personalizadas
+5. Candidata-se a vagas de interesse
+6. Gera planos de estudos personalizados
+7. Edita ou exclui própria conta quando necessário
+
+**Para Administrador:**
+
+1. Acessa Swagger UI ou Postman
+2. Faz login e obtém token JWT
+3. Cria e gerencia vagas e cursos
+4. Monitora usuários e candidaturas
+5. Promove outros usuários a ADMIN quando necessário
+6. Gerencia todo o conteúdo da plataforma
+
 ## Stack Tecnológica
 
 ### Backend
