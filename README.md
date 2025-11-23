@@ -484,7 +484,7 @@ mvn test
 
 ### Vídeo Java
 
-- [Pitch Java]()
+- [Pitch Java](https://www.youtube.com/watch?v=K9C1kxkgZDQ)
 - [Demonstração da API Java](https://www.youtube.com/watch?v=JMNiMZoDzjs)
 
 ### Vídeo Mobile / IOT
